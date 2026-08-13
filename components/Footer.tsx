@@ -5,7 +5,6 @@ import { brandData, navigation } from '@/data/viree';
 export default function Footer() {
   const [on, setOn] = useState(false);
 
-  // clique n'importe où dans le footer = phares, sauf sur les liens
   const toggle = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('a, button, input')) return;
     setOn(!on);
@@ -13,27 +12,34 @@ export default function Footer() {
 
   return (
     <footer className="relative overflow-hidden bg-ink text-paper" onClick={toggle}>
-      {/* Hector fondu dans le fond du footer */}
-      <div className="absolute inset-0" aria-hidden="true">
-        <img src="/images/hector-off.jpg" alt="" className="h-full w-full object-cover object-center" />
+      {/* Hector : entier sur mobile, fusionné sur grand écran */}
+      <div className="relative h-[300px] w-full sm:h-[400px] md:h-[520px]" aria-hidden="true">
+        <img
+          src="/images/hector-off.jpg"
+          alt=""
+          className="absolute inset-0 h-full w-full object-contain object-center md:object-cover"
+        />
         <img
           src="/images/hector-on.jpg"
           alt=""
-          className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 ${on ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 h-full w-full object-contain object-center transition-opacity duration-700 md:object-cover ${on ? 'opacity-100' : 'opacity-0'}`}
         />
-        {/* halo des phares quand allumés */}
+        {/* halo des phares */}
         <div
-          className={`absolute inset-0 transition-opacity duration-700 ${on ? 'opacity-100' : 'opacity-0'}`}
-          style={{ background: 'radial-gradient(ellipse 45% 30% at 50% 55%, rgba(242,179,61,0.2), transparent 70%)' }}
+          className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${on ? 'opacity-100' : 'opacity-0'}`}
+          style={{ background: 'radial-gradient(ellipse 45% 30% at 50% 60%, rgba(242,179,61,0.2), transparent 70%)' }}
         />
-        {/* dégradé sombre, transparent là où est le camion */}
+        {/* dégradé : lisse en haut, fond dans l'encre en bas */}
         <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(to bottom, rgba(22,41,74,0.97) 0%, rgba(22,41,74,0.5) 45%, rgba(22,41,74,0.6) 65%, rgba(22,41,74,0.97) 100%)' }}
+          className="pointer-events-none absolute inset-0"
+          style={{ background: 'linear-gradient(to bottom, rgba(22,41,74,0.5) 0%, rgba(22,41,74,0) 28%, rgba(22,41,74,0) 55%, rgba(22,41,74,0.9) 86%, rgb(22,41,74) 100%)' }}
         />
+        <p className="hand absolute bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap text-2xl text-paper/85">
+          {on ? 'cliquez pour éteindre Hector' : 'cliquez pour allumer Hector'}
+        </p>
       </div>
 
-      <div className="relative z-10 mx-auto flex w-full max-w-[1280px] flex-col gap-10 px-5 pb-10 pt-24 md:flex-row md:items-start md:justify-between md:px-8">
+      <div className="relative z-10 mx-auto flex w-full max-w-[1280px] flex-col gap-10 px-5 pb-10 pt-10 md:flex-row md:items-start md:justify-between md:px-8">
         <div>
           <p className="font-display text-2xl font-bold">La Virée d’Hector</p>
           <p className="hand mt-2 text-2xl text-sun">{brandData.tagline}</p>
@@ -49,10 +55,6 @@ export default function Footer() {
           <a href={brandData.facebook.url} target="_blank" rel="noopener noreferrer" className="hover:text-sun">Facebook</a>
         </div>
       </div>
-
-      <p className="hand relative z-10 pb-4 text-center text-2xl text-paper/80">
-        {on ? 'cliquez pour éteindre Hector' : 'cliquez pour allumer Hector'}
-      </p>
 
       <p className="relative z-10 border-t border-paper/10 py-6 text-center text-xs text-paper/50">
         © {new Date().getFullYear()} La Virée d’Hector · <a href="/mentions-legales" className="hover:text-sun">Mentions légales</a>
