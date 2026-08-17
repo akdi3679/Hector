@@ -45,6 +45,7 @@ export default function YouTubeDropdown({ variant = 'ink', drop = 'down' }: { va
         <Youtube size={16} /> Nos chaînes <ChevronDown size={14} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
 
+
       {open && (
         <div
           role="menu"
@@ -79,4 +80,4 @@ export default function YouTubeDropdown({ variant = 'ink', drop = 'down' }: { va
       )}
     </div>
   );
-}
+} 
