@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, Youtube } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
+import { YoutubeIcon } from './SocialIcons';
 import { youtubeChannels } from '@/data/viree';
 
 interface Live {
@@ -42,9 +43,8 @@ export default function YouTubeDropdown({ variant = 'ink', drop = 'down' }: { va
   return (
     <div className="relative" ref={ref}>
       <button type="button" onClick={() => setOpen((o) => !o)} className={cls} aria-haspopup="menu" aria-expanded={open}>
-        <Youtube size={16} /> Nos chaînes <ChevronDown size={14} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+        <YoutubeIcon className="h-4 w-4" /> Nos chaînes <ChevronDown size={14} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
-
 
       {open && (
         <div
@@ -64,7 +64,7 @@ export default function YouTubeDropdown({ variant = 'ink', drop = 'down' }: { va
                 <img src={c.avatar} alt="" className="h-9 w-9 rounded-full object-cover" />
               ) : (
                 <span className="grid h-9 w-9 place-items-center rounded-full bg-red/10 text-red">
-                  <Youtube size={16} />
+                  <YoutubeIcon className="h-4 w-4" />
                 </span>
               )}
               <span className="min-w-0 flex-1">
@@ -80,4 +80,4 @@ export default function YouTubeDropdown({ variant = 'ink', drop = 'down' }: { va
       )}
     </div>
   );
-} 
+}
