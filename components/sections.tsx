@@ -1,14 +1,14 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
 import Reveal from './Reveal';
-import { Globe, Truck, BatteryCharging, Camera, Coffee, Cpu, ChevronDown, ChevronLeft } from 'lucide-react';
+import YouTubeDropdown from './YouTubeDropdown';
+import { Globe, Truck, BatteryCharging, Camera, Coffee, Cpu, ChevronLeft } from 'lucide-react';
 import { YoutubeIcon, InstagramIcon, FacebookIcon, TiktokIcon } from './SocialIcons';
 import {
-  brandData, storyData, platforms, formats, collabs,
-  reviews, gallery, gear, moments, youtubeChannels, fallbackLatestVideos,
+  brandData, navigation, videos, storyData, platforms, formats, collabs,
+  reviews, products, gallery, gear, moments, youtubeChannels, fallbackLatestVideos,
 } from '@/data/viree';
 import type { YoutubeChannel } from '@/data/viree';
-import YouTubeDropdown from './YouTubeDropdown';
 function Head({ hand, title, sub }: { hand: string; title: string; sub?: string }) {
   return (
     <Reveal className="mb-12 md:mb-16">
@@ -232,22 +232,24 @@ export function EcosystemSection() {
         ) : (
           <>
             <div className="grid gap-6 md:grid-cols-3">
-              {youtubeChannels.map((c: YoutubeChannel, i: number) => (
-                <Reveal key={c.id} delay={i * 90}>
-                  <a href={c.url} target="_blank" rel="noopener noreferrer"
-                     aria-label={`Voir la chaîne YouTube ${c.name}`}
-                     className="ticket group flex h-full flex-col p-7 transition-all duration-300 hover:-translate-y-1">
-                    <YoutubeIcon className={`h-7 w-7 ${c.accent === 'red' ? 'text-red' : c.accent === 'sun' ? 'text-sunset' : 'text-sky'}`} />
-                    <h3 className="mt-4 font-display text-2xl font-semibold">{c.name}</h3>
-                    <p className="label mt-2 text-sunset">{c.positioning}</p>
-                    <p className="mt-3 flex-1 text-sm leading-relaxed text-mist">{c.description}</p>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {c.themes.map((t: string) => <span key={t} className="rounded-full bg-ink/5 px-3 py-1 text-[11px] font-semibold text-ink/70">{t}</span>)}
-                    </div>
-                    <span className="btn btn-ghost mt-6 w-fit !px-5 !py-2.5">Voir la chaîne</span>
-                  </a>
-                </Reveal>
-              ))}
+             {youtubeChannels.map((c: YoutubeChannel, i: number) => (
+  <Reveal key={c.id} delay={i * 90}>
+    <a href={c.url} target="_blank" rel="noopener noreferrer"
+       aria-label={`Voir la chaîne YouTube ${c.name}`}
+       className="ticket group flex h-full flex-col p-7 transition-all duration-300 hover:-translate-y-1">
+      <YoutubeIcon className={`h-7 w-7 ${c.accent === 'red' ? 'text-red' : c.accent === 'sun' ? 'text-sunset' : 'text-sky'}`} />
+      <h3 className="mt-4 font-display text-2xl font-semibold">{c.name}</h3>
+      <p className="label mt-2 text-sunset">{c.positioning}</p>
+      <p className="mt-3 flex-1 text-sm leading-relaxed text-mist">{c.description}</p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {c.themes.map((t: string) => (
+          <span key={t} className="rounded-full bg-ink/5 px-3 py-1 text-[11px] font-semibold text-ink/70">{t}</span>
+        ))}
+      </div>
+      <span className="btn btn-ghost mt-6 w-fit !px-5 !py-2.5">Voir la chaîne</span>
+    </a>
+  </Reveal>
+))}
             </div>
             <button type="button" onClick={() => setSplit(false)} className="btn btn-ghost mt-8 !px-5 !py-2.5">
               <ChevronLeft size={14} /> Revenir à l’écosystème
