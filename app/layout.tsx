@@ -17,14 +17,23 @@ export const metadata: Metadata = {
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'La Virée d’Hector',
-  slogan: 'It’s time to go',
-  founder: [{ '@type': 'Person', name: 'Sophie' }, { '@type': 'Person', name: 'Jean-Marc' }],
+  name: 'La Virée d\'Hector',
+  slogan: 'It\'s time to go',
+  founder: [
+    { '@type': 'Person', name: 'Sophie' },
+    { '@type': 'Person', name: 'Jean-Marc' }
+  ],
   sameAs: [
+    'https://www.youtube.com/@lavireedhector',
+    'https://www.youtube.com/@horizontechnium', // ← Ajouter
+    'https://www.youtube.com/@lavireedhectortravel', // ← Ajouter
     'https://www.instagram.com/lavireedhector/',
     'https://www.facebook.com/lavireedhector/',
     'https://www.tiktok.com/@lavireedhector',
   ],
+  // Ajouter ces 2 lignes
+  description: 'Créateurs de contenu voyage, tech et vanlife. 3 chaînes YouTube, partenariats marques.',
+  knowsAbout: ['vanlife', 'voyage', 'high-tech', 'énergie solaire', 'matériel nomade']
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

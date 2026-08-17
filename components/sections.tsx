@@ -94,12 +94,12 @@ export function StatsStrip() {
   }, []);
 
   const items = [
-    { icon: <YoutubeIcon className="h-5 w-5" />, value: <CountValue target={3} started={started} />, label: 'chaînes YouTube' },
-    { icon: <InstagramIcon className="h-5 w-5" />, value: <CountValue target={11.6} suffix="K" decimals={1} started={started} />, label: 'abonnés Instagram' },
-    { icon: <FacebookIcon className="h-5 w-5" />, value: <CountValue target={7.5} suffix="K" decimals={1} started={started} />, label: 'abonnés Facebook' },
-    { icon: <TiktokIcon className="h-5 w-5" />, value: <span>∞</span>, label: 'virées en vertical' },
-    { icon: <Globe className="h-5 w-5" />, value: <span>monde</span>, label: 'notre terrain de jeu' },
-  ];
+  { icon: <YoutubeIcon className="h-5 w-5" />, value: <CountValue target={3} started={started} />, label: 'chaînes YouTube' },
+  { icon: <YoutubeIcon className="h-5 w-5" />, value: <span>à compléter</span>, label: 'abonnés YouTube cumulés' },
+  { icon: <InstagramIcon className="h-5 w-5" />, value: <CountValue target={11.6} suffix="K" decimals={1} started={started} />, label: 'abonnés Instagram' },
+  { icon: <FacebookIcon className="h-5 w-5" />, value: <CountValue target={7.5} suffix="K" decimals={1} started={started} />, label: 'abonnés Facebook' },
+  { icon: <Globe className="h-5 w-5" />, value: <span>monde</span>, label: 'notre terrain de jeu' },
+];
 
   return (
     <section ref={ref} className="bg-ink py-12 text-paper">
@@ -170,20 +170,70 @@ export function EcosystemSection() {
   return (
     <section id="ecosysteme" className="py-20 md:py-28">
       <div className="mx-auto w-full max-w-[1280px] px-5 md:px-8">
-        <Head hand="trois chaînes, une même route" title="L’écosystème." sub="YouTube raconte, TikTok allume l’étincelle, Instagram et Facebook font vivre la communauté." />
-        <div className="grid gap-6 md:grid-cols-3">
-          {platforms.map((p, i) => (
-            <Reveal key={p.name} delay={i * 90} className={p.main ? 'md:col-span-3' : ''}>
-              <a href={p.url} target="_blank" rel="noopener noreferrer" className={`ticket group flex h-full flex-col p-7 transition-all duration-300 hover:-translate-y-1 ${p.main ? 'bg-sun/20 md:flex-row md:items-center md:gap-10' : ''}`}>
-                <div className="flex-1">
-                  <h3 className="font-display text-2xl font-semibold">{p.name}</h3>
-                  <p className="mt-3 max-w-xl text-sm leading-relaxed text-mist">{p.desc}</p>
+        <Head 
+          hand="trois chaînes, trois univers" 
+          title="Notre écosystème YouTube." 
+          sub="Chaque chaîne a son positionnement. Votre marque trouve immédiatement où son univers peut vivre." 
+        />
+        
+        <div className="grid gap-8 md:grid-cols-3">
+          {youtubeChannels.map((channel, i) => (
+            <Reveal key={channel.id} delay={i * 100}>
+              <a 
+                href={channel.url} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                  aria-label={`Voir la chaîne YouTube ${channel.name}`}
+
+                className="ticket group flex h-full flex-col p-7 transition-all duration-300 hover:-translate-y-1"
+              >
+                <div className="mb-4">
+                  <YoutubeIcon className="h-8 w-8 text-sunset" />
                 </div>
-                <span className={`btn mt-6 w-fit ${p.main ? 'btn-red' : 'btn-ghost'} !px-5 !py-3`}>{p.main ? 'Tout voir sur YouTube' : 'Suivre'}</span>
+                
+                <h3 className="font-display text-2xl font-semibold mb-2">{channel.name}</h3>
+                <p className="text-sm font-semibold text-sunset mb-3">{channel.positioning}</p>
+                <p className="text-sm leading-relaxed text-mist mb-4 flex-1">{channel.description}</p>
+                
+                <div className="mb-4">
+                  <p className="label text-sunset mb-2">Exemples de contenus</p>
+                  <p className="text-xs text-mist">{channel.exampleContent}</p>
+                </div>
+                
+                {channel.brands.length > 0 && (
+                  <div className="mb-4">
+                    <p className="label text-sunset mb-2">Marques présentes</p>
+                    <div className="flex flex-wrap gap-2">
+                      {channel.brands.map(brand => (
+                        <span key={brand} className="text-xs px-2 py-1 bg-sun/20 rounded text-ink">
+                          {brand}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                <div className="mt-auto pt-4 border-t border-ink/10">
+                  <p className="text-sm font-semibold text-ink mb-2">{channel.audience}</p>
+                  <span className="btn btn-ghost !px-5 !py-2.5 w-full justify-center">
+                    Voir la chaîne
+                  </span>
+                </div>
               </a>
             </Reveal>
           ))}
         </div>
+        
+        <Reveal className="mt-12">
+          <div className="ticket p-6 text-center">
+            <p className="hand text-2xl text-sunset mb-2">
+              votre produit trouve sa place sur la chaîne qui correspond à son univers
+            </p>
+            <p className="text-sm text-mist">
+              Tech domestique → Horizon Technium · Voyage → Travel · Équipement nomade → La Virée d'Hector
+            </p>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -223,41 +273,90 @@ export function MaterialSection() {
 export function BrandsSection() {
   return (
     <section id="marques" className="bg-ink py-20 text-paper md:py-28">
-      <div className="mx-auto grid w-full max-w-[1280px] gap-14 px-5 md:px-8 lg:grid-cols-2">
-        <div>
-          <p className="hand mb-2 text-2xl text-sun">pour les marques & agences</p>
-          <h2 className="font-display text-4xl font-semibold leading-tight md:text-5xl">Votre produit, en route avec nous.</h2>
-          <p className="mt-5 max-w-lg leading-relaxed text-paper/75">
-            Notre audience prépare sa propre vie nomade : elle équipe, finance et achète. Votre marque y a une place naturelle — si elle est vraie.
-          </p>
-          <div className="mt-10 space-y-4">
-            {formats.map((f, i) => (
-              <Reveal key={f.title} delay={i * 70}>
-                <div className="ticket !border-paper/25 !bg-paper/5 p-5">
-                  <p className="font-display text-lg font-semibold text-sun">{i + 1}. {f.title}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-paper/70">{f.text}</p>
-                </div>
-              </Reveal>
-            ))}
+      <div className="mx-auto w-full max-w-[1280px] px-5 md:px-8">
+        <Head 
+          hand="pour les marques & agences" 
+          title="Collaborons." 
+          sub="Un espace dédié pour comprendre qui nous sommes, notre audience, et comment travailler ensemble." 
+        />
+        
+        <div className="grid gap-14 lg:grid-cols-2">
+          {/* Colonne gauche : formats de collaboration */}
+          <div>
+            <h3 className="font-display text-2xl font-semibold text-sun mb-6">Formats de collaboration</h3>
+            <div className="space-y-4">
+              {formats.map((f, i) => (
+                <Reveal key={f.title} delay={i * 70}>
+                  <div className="ticket !border-paper/25 !bg-paper/5 p-5">
+                    <p className="font-display text-lg font-semibold text-sun">{i + 1}. {f.title}</p>
+                    <p className="mt-1 text-sm leading-relaxed text-paper/70">{f.text}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
           </div>
-        </div>
-        <div className="lg:pt-24">
-          <Reveal>
-            <p className="label text-paper/60">Ils nous ont fait confiance</p>
-            <div className="mt-4 flex flex-wrap gap-3">
-              {collabs.map((c) => <span key={c} className="stamp !border-sun !text-sun">{c}</span>)}
-            </div>
-            <div className="mt-10 rounded-2xl bg-sun p-7 text-ink">
-              <p className="hand text-3xl">parlons de votre projet</p>
-              <p className="mt-2 text-sm leading-relaxed text-ink/80">
-                Les chiffres qui comptent (YouTube, démographie, engagement) sont dans notre media kit PDF — envoyé sur demande, gratuitement.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <a href={brandData.instagram.url} target="_blank" rel="noopener noreferrer" className="btn btn-ink">Demander le media kit</a>
-                <a href={brandData.youtube.url} target="_blank" rel="noopener noreferrer" className="btn !border-2 !border-ink/30 text-ink hover:border-ink">Juger sur pièces</a>
+          
+          {/* Colonne droite : collabs + audience + media kit */}
+          <div className="space-y-8">
+            <Reveal>
+              <div>
+                <h3 className="font-display text-2xl font-semibold text-sun mb-4">Ils nous ont fait confiance</h3>
+                <div className="flex flex-wrap gap-3">
+                  {collabs.map((c) => (
+                    <span key={c} className="stamp !border-sun !text-sun">{c}</span>
+                  ))}
+                </div>
+                <p className="mt-4 text-sm text-paper/60">
+                  Collaborations réelles, vérifiables sur nos chaînes.
+                </p>
               </div>
-            </div>
-          </Reveal>
+            </Reveal>
+            
+            <Reveal delay={100}>
+              <div>
+                <h3 className="font-display text-2xl font-semibold text-sun mb-4">Notre audience</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center pb-2 border-b border-paper/10">
+                    <span className="text-sm text-paper/70">YouTube (3 chaînes)</span>
+                    <span className="font-display text-lg text-sun">à compléter</span>
+                  </div>
+                  <div className="flex justify-between items-center pb-2 border-b border-paper/10">
+                    <span className="text-sm text-paper/70">Instagram</span>
+                    <span className="font-display text-lg text-sun">11,6K</span>
+                  </div>
+                  <div className="flex justify-between items-center pb-2 border-b border-paper/10">
+                    <span className="text-sm text-paper/70">Facebook</span>
+                    <span className="font-display text-lg text-sun">7,5K</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-paper/70">TikTok</span>
+                    <span className="font-display text-lg text-sun">∞</span>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+            
+            <Reveal delay={200}>
+              <div className="rounded-2xl bg-sun p-7 text-ink">
+                <p className="hand text-3xl">parlons de votre projet</p>
+                <p className="mt-2 text-sm leading-relaxed text-ink/80">
+                  Le media kit complet (audiences détaillées, démographie, exemples de vidéos, tarifs) est envoyé sur demande.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <a 
+  href="/media-kit.pdf" 
+  download="La-Viree-d-Hector-Media-Kit.pdf"
+  className="btn btn-ink"
+>
+  Télécharger le media kit
+</a>
+                  <a href={brandData.youtube.url} target="_blank" rel="noopener noreferrer" className="btn !border-2 !border-ink/30 text-ink hover:border-ink">
+                    Voir nos vidéos
+                  </a>
+                </div>
+              </div>
+            </Reveal>
+          </div>
         </div>
       </div>
     </section>
@@ -282,32 +381,7 @@ export function ReviewsSection() {
   );
 }
 
-export function BoutiqueSection() {
-  return (
-    <section className="bg-paper py-20 md:py-28">
-      <div className="mx-auto w-full max-w-[1280px] px-5 md:px-8">
-        <Head hand="un morceau de la route chez vous" title="La boutique." sub="De petites choses pensées et faites en chemin. Bientôt disponibles — laissez votre email plus bas pour être prévenus en premier." />
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {products.map((p, i) => (
-            <Reveal key={p.name} delay={(i % 4) * 90}>
-              <article className="group polaroid">
-                <div className="card-img aspect-square overflow-hidden">
-                  <img src={p.image} alt={p.name} loading="lazy" className="h-full w-full object-cover" />
-                </div>
-                <div className="flex items-baseline justify-between gap-3 pt-4">
-                  <h3 className="font-display text-xl font-semibold">{p.name}</h3>
-                  <span className="hand text-xl text-sunset">{p.price}</span>
-                </div>
-                <p className="pt-1 text-sm text-mist">{p.desc}</p>
-                <a href="#newsletter" className="btn btn-ghost mt-4 !px-5 !py-2.5">Me prévenir</a>
-              </article>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
+
 export function MomentsSection() {
   return (
     <section className="overflow-hidden py-20 md:py-28">
@@ -367,27 +441,7 @@ export function GallerySection() {
   );
 }
 
-export function NewsletterSection() {
-  const [done, setDone] = useState(false);
-  const [email, setEmail] = useState('');
-  return (
-    <section id="newsletter" className="mx-auto w-full max-w-[1280px] scroll-mt-24 px-5 pb-20 md:px-8 md:pb-28">
-      <Reveal className="ticket mx-auto max-w-2xl p-8 text-center md:p-12">
-        <p className="hand text-3xl text-sunset">la lettre de la route</p>
-        <h2 className="mt-3 font-display text-3xl font-semibold md:text-4xl">Des nouvelles d’Hector, de temps en temps.</h2>
-        <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-mist">Une lettre quand il se passe quelque chose : nouvelle étape, nouvelle vidéo, ouverture de la boutique. Jamais de spam.</p>
-        {done ? (
-          <p className="hand mt-8 text-2xl text-sunset">Merci ! À très vite sur la route.</p>
-        ) : (
-          <form onSubmit={(e) => { e.preventDefault(); if (email) setDone(true); }} className="mx-auto mt-8 flex max-w-md flex-col gap-3 sm:flex-row">
-            <input required type="email" placeholder="votre@email.fr" value={email} onChange={(e) => setEmail(e.target.value)} className="flex-1 rounded-full border-2 border-ink/20 bg-white px-5 py-3 outline-none focus:border-sunset" />
-            <button type="submit" className="btn btn-ink shrink-0">Je monte à bord</button>
-          </form>
-        )}
-      </Reveal>
-    </section>
-  );
-}
+
 
 export function FinalCTA() {
   return (

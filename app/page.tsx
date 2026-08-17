@@ -4,7 +4,7 @@ import Footer from '@/components/Footer';
 import RoadProgress from '@/components/RoadProgress';
 
  
-import { Hero, StatsStrip, VideosSection, StorySection, EcosystemSection, MaterialSection, BrandsSection, ReviewsSection, MomentsSection , BoutiqueSection, GallerySection, NewsletterSection, FinalCTA } from '@/components/sections';
+import { Hero, StatsStrip, VideosSection, StorySection, EcosystemSection, MaterialSection, BrandsSection, ReviewsSection, MomentsSection , GallerySection , FinalCTA } from '@/components/sections';
 
 export default function Page() {
   return (
@@ -21,11 +21,9 @@ export default function Page() {
 
         <BrandsSection />
         <ReviewsSection />
-        <BoutiqueSection />
         <MomentsSection />
 
         <GallerySection />
-        <NewsletterSection />
         <FinalCTA />
       </main>
       <Footer />

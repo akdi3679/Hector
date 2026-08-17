@@ -9,7 +9,38 @@ export const brandData = {
   tiktok: { handle: '@lavireedhector', url: 'https://www.tiktok.com/@lavireedhector' },
   youtube: { url: 'https://www.youtube.com/@lavireedhector' },
 };
-
+export const youtubeChannels = [
+  {
+    id: 'main',
+    name: 'La Virée d\'Hector',
+    url: brandData.youtube.url,
+    positioning: 'Partenariats, produits voyage, high-tech, équipements nomades',
+    audience: '11,6K abonnés',
+    description: 'Chaîne principale orientée partenariats et présentations de produits autour du voyage, de la high-tech et des équipements adaptés à la vie nomade.',
+    exampleContent: 'Tests matériel, intégrations marques, vie à bord',
+    brands: ['Allpowers', 'DJI', 'OutIn']
+  },
+  {
+    id: 'tech',
+    name: 'Horizon Technium',
+    url: 'https://www.youtube.com/@horizontechnium', // ← URL à confirmer
+    positioning: 'Tech domestique, énergie, solaire, renouvelables',
+    audience: 'à compléter',
+    description: 'Consacrée aux nouvelles technologies domestiques, aux équipements de la maison, à l\'énergie, au solaire et plus largement aux solutions liées aux énergies renouvelables.',
+    exampleContent: 'Tests panneaux solaires, batteries, domotique, solutions énergétiques',
+    brands: ['à compléter']
+  },
+  {
+    id: 'travel',
+    name: 'La Virée d\'Hector Travel',
+    url: 'https://www.youtube.com/@lavireedhectortravel', // ← URL à confirmer
+    positioning: 'Voyages, destinations, découvertes, vie sur la route',
+    audience: 'à compléter',
+    description: 'Exclusivement consacrée à nos voyages, nos destinations, nos découvertes et notre vie sur la route.',
+    exampleContent: 'Vlogs voyage, guides destinations, coulisses',
+    brands: []
+  }
+];
 export const navigation = [
   { label: 'Vidéos', href: '#videos' },
   { label: 'Notre histoire', href: '#apropos' },
