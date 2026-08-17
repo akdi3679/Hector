@@ -1,8 +1,8 @@
-"use client";
-import { brandData, navigation } from '@/data/viree';
-import { useState, type MouseEvent } from 'react';
-import type { YoutubeChannel } from '@/data/viree';
 
+"use client";
+import { useState, type MouseEvent } from 'react';
+import { brandData, navigation, youtubeChannels, mediaKitUrl } from '@/data/viree';
+import type { YoutubeChannel } from '@/data/viree';
 export default function Footer() {
   const [on, setOn] = useState(false);
 
@@ -45,15 +45,15 @@ export default function Footer() {
           <p className="font-display text-2xl font-bold">La Virée d’Hector</p>
           <p className="hand mt-2 text-2xl text-sun">{brandData.tagline}</p>
           <p className="mt-3 max-w-xs text-sm text-paper/70">{brandData.couple} · {brandData.truck}.</p>
-          <a href={mediaKitUrl} download="La-Viree-d-Hector-Media-Kit.pdf" className="btn btn-ink">
-  Demander le media kit
+          <a href={mediaKitUrl} download="La-Viree-d-Hector-Media-Kit.pdf" className="hover:text-sun">
+  Media kit
 </a>
         </div>
         <nav className="flex flex-col items-start gap-3">
           {navigation.map((n) => <a key={n.href} href={n.href} className="w-fit text-sm font-semibold text-paper/75 hover:text-sun">{n.label}</a>)}
         </nav>
         <div className="flex flex-col items-start gap-3 text-sm font-semibold">
-         {youtubeChannels.map((c) => (
+        {youtubeChannels.map((c: YoutubeChannel) => (
   <a key={c.id} href={c.url} target="_blank" rel="noopener noreferrer" className="hover:text-sun">
     {c.name}
   </a>

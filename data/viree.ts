@@ -149,4 +149,4 @@ export const fallbackLatestVideos = [
   { title: 'El Jem, face à 2 000 ans d’histoire', tag: 'Travel', url: 'https://www.tiktok.com/@lavireedhector/video/7581768423806356758', image: 'https://images.unsplash.com/photo-1548013148-4249e6910e1c?q=80&w=1000&auto=format&fit=crop' },
   { title: 'L’énergie qui ne nous lâche jamais (Allpowers R2500)', tag: 'La Virée d’Hector', url: 'https://www.tiktok.com/@lavireedhector/video/7353891285008157985', image: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=1000&auto=format&fit=crop' },
 ];
-export const mediaKitUrl = 'https://res.cloudinary.com/YOUR_CLOUD/raw/upload/hector/media-kit.pdf';
+export const mediaKitUrl = 'https://res.cloudinary.com/demo/raw/upload/v1/media-kit.pdf';

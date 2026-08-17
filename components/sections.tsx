@@ -6,7 +6,7 @@ import { Globe, Truck, BatteryCharging, Camera, Coffee, Cpu, ChevronLeft } from 
 import { YoutubeIcon, InstagramIcon, FacebookIcon, TiktokIcon } from './SocialIcons';
 import {
   brandData, navigation, videos, storyData, platforms, formats, collabs,
-  reviews, products, gallery, gear, moments, youtubeChannels, fallbackLatestVideos,
+  reviews, products, gallery, gear, moments, youtubeChannels, fallbackLatestVideos, mediaKitUrl,
 } from '@/data/viree';
 import type { YoutubeChannel } from '@/data/viree';
 function Head({ hand, title, sub }: { hand: string; title: string; sub?: string }) {
