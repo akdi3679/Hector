@@ -1,14 +1,15 @@
 "use client";
-import { useState } from 'react';
 import { brandData, navigation } from '@/data/viree';
+import { useState, type MouseEvent } from 'react';
+import type { YoutubeChannel } from '@/data/viree';
 
 export default function Footer() {
   const [on, setOn] = useState(false);
 
-  const toggle = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest('a, button, input')) return;
-    setOn(!on);
-  };
+ const toggle = (e: MouseEvent) => {
+  if ((e.target as HTMLElement).closest('a, button, input')) return;
+  setOn(!on);
+};
 
   return (
     <footer className="relative overflow-hidden bg-ink text-paper" onClick={toggle}>
@@ -44,12 +45,19 @@ export default function Footer() {
           <p className="font-display text-2xl font-bold">La Virée d’Hector</p>
           <p className="hand mt-2 text-2xl text-sun">{brandData.tagline}</p>
           <p className="mt-3 max-w-xs text-sm text-paper/70">{brandData.couple} · {brandData.truck}.</p>
+          <a href={mediaKitUrl} download="La-Viree-d-Hector-Media-Kit.pdf" className="btn btn-ink">
+  Demander le media kit
+</a>
         </div>
         <nav className="flex flex-col items-start gap-3">
           {navigation.map((n) => <a key={n.href} href={n.href} className="w-fit text-sm font-semibold text-paper/75 hover:text-sun">{n.label}</a>)}
         </nav>
         <div className="flex flex-col items-start gap-3 text-sm font-semibold">
-          <a href={brandData.youtube.url} target="_blank" rel="noopener noreferrer" className="hover:text-sun">YouTube — 3 chaînes</a>
+         {youtubeChannels.map((c) => (
+  <a key={c.id} href={c.url} target="_blank" rel="noopener noreferrer" className="hover:text-sun">
+    {c.name}
+  </a>
+))}
           <a href={brandData.tiktok.url} target="_blank" rel="noopener noreferrer" className="hover:text-sun">TikTok {brandData.tiktok.handle}</a>
           <a href={brandData.instagram.url} target="_blank" rel="noopener noreferrer" className="hover:text-sun">Instagram {brandData.instagram.handle}</a>
           <a href={brandData.facebook.url} target="_blank" rel="noopener noreferrer" className="hover:text-sun">Facebook</a>

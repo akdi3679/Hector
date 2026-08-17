@@ -9,38 +9,7 @@ export const brandData = {
   tiktok: { handle: '@lavireedhector', url: 'https://www.tiktok.com/@lavireedhector' },
   youtube: { url: 'https://www.youtube.com/@lavireedhector' },
 };
-export const youtubeChannels = [
-  {
-    id: 'main',
-    name: 'La Virée d\'Hector',
-    url: brandData.youtube.url,
-    positioning: 'Partenariats, produits voyage, high-tech, équipements nomades',
-    audience: '11,6K abonnés',
-    description: 'Chaîne principale orientée partenariats et présentations de produits autour du voyage, de la high-tech et des équipements adaptés à la vie nomade.',
-    exampleContent: 'Tests matériel, intégrations marques, vie à bord',
-    brands: ['Allpowers', 'DJI', 'OutIn']
-  },
-  {
-    id: 'tech',
-    name: 'Horizon Technium',
-    url: 'https://www.youtube.com/@horizontechnium', // ← URL à confirmer
-    positioning: 'Tech domestique, énergie, solaire, renouvelables',
-    audience: 'à compléter',
-    description: 'Consacrée aux nouvelles technologies domestiques, aux équipements de la maison, à l\'énergie, au solaire et plus largement aux solutions liées aux énergies renouvelables.',
-    exampleContent: 'Tests panneaux solaires, batteries, domotique, solutions énergétiques',
-    brands: ['à compléter']
-  },
-  {
-    id: 'travel',
-    name: 'La Virée d\'Hector Travel',
-    url: 'https://www.youtube.com/@lavireedhectortravel', // ← URL à confirmer
-    positioning: 'Voyages, destinations, découvertes, vie sur la route',
-    audience: 'à compléter',
-    description: 'Exclusivement consacrée à nos voyages, nos destinations, nos découvertes et notre vie sur la route.',
-    exampleContent: 'Vlogs voyage, guides destinations, coulisses',
-    brands: []
-  }
-];
+
 export const navigation = [
   { label: 'Vidéos', href: '#videos' },
   { label: 'Notre histoire', href: '#apropos' },
@@ -124,3 +93,60 @@ export const gear = [
   { name: 'OutIn Nano', role: 'espresso à bord', note: 'partenariat' },
   { name: 'PC de montage sur-mesure', role: 'watercooling & étalonnage', note: 'des vidéos dignes de ce nom' },
 ];
+
+export interface YoutubeChannel {
+  id: string;
+  handle: string;
+  name: string;
+  url: string;
+  positioning: string;
+  description: string;
+  audience: string;
+  themes: string[];
+  accent: 'red' | 'sun' | 'sky';
+}
+
+export const youtubeChannels: YoutubeChannel[] = [
+  {
+    id: 'main',
+    handle: '@lavireedhector',
+    name: 'La Virée d’Hector',
+    url: 'https://www.youtube.com/@lavireedhector',
+    positioning: 'Partenariats & produits nomades',
+    description: 'La chaîne principale : intégrations marques, tests d’équipements, high-tech et vie à bord d’Hector.',
+    audience: 'Voyage · high-tech · équipement nomade',
+    themes: ['Vanlife', 'High-tech', 'Équipement'],
+    accent: 'red',
+  },
+  {
+    id: 'tech',
+    handle: '@HorizonTechnium',
+    name: 'Horizon Technium',
+    url: 'https://www.youtube.com/@HorizonTechnium',
+    positioning: 'Énergie, solaire & maison',
+    description: 'Technologies domestiques, stockage d’énergie, solaire et renouvelables — testés en conditions réelles.',
+    audience: 'Maison · énergie · solaire',
+    themes: ['Solaire', 'Batteries', 'Domotique'],
+    accent: 'sun',
+  },
+  {
+    id: 'travel',
+    handle: '@LaviréedHectorTravel',
+    name: 'La Virée d’Hector Travel',
+    url: 'https://www.youtube.com/@Lavir%C3%A9edHectorTravel',
+    positioning: 'Voyages & destinations',
+    description: 'Exclusivement le voyage : destinations, découvertes, rencontres et vie sur la route.',
+    audience: 'Voyage · destinations · découvertes',
+    themes: ['Destinations', 'Vlogs', 'Rencontres'],
+    accent: 'sky',
+  },
+];
+
+// Fallback si pas de clé API — dernières vidéos réelles d'Horizon Technium
+export const fallbackLatestVideos = [
+  { title: 'Station de stockage OSCAL PowerStorage 2000 : 2400 W en bypass', tag: 'Horizon Technium', url: 'https://www.youtube.com/@HorizonTechnium', image: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?q=80&w=1000&auto=format&fit=crop' },
+  { title: 'Batterie ECO-WORTHY 16kWh : l’énergie solaire gratuite jour et nuit', tag: 'Horizon Technium', url: 'https://www.youtube.com/@HorizonTechnium', image: 'https://images.unsplash.com/photo-1508514186921-58418ff0183d?q=80&w=1000&auto=format&fit=crop' },
+  { title: 'El Jem, face à 2 000 ans d’histoire', tag: 'Travel', url: 'https://www.tiktok.com/@lavireedhector/video/7581768423806356758', image: 'https://images.unsplash.com/photo-1548013148-4249e6910e1c?q=80&w=1000&auto=format&fit=crop' },
+  { title: 'L’énergie qui ne nous lâche jamais (Allpowers R2500)', tag: 'La Virée d’Hector', url: 'https://www.tiktok.com/@lavireedhector/video/7353891285008157985', image: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=1000&auto=format&fit=crop' },
+];
+export const mediaKitUrl = 'https://res.cloudinary.com/YOUR_CLOUD/raw/upload/hector/media-kit.pdf';

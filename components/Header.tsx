@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { brandData, navigation } from '@/data/viree';
-
+import YouTubeDropdown from './YouTubeDropdown';
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -18,7 +18,7 @@ export default function Header() {
   La Virée d’Hector
 </a>                 <nav className="hidden items-center gap-8 md:flex">
           {navigation.map((n) => <a key={n.href} href={n.href} className="text-[13px] font-semibold text-mist transition-colors hover:text-sunset">{n.label}</a>)}
-          <a href={brandData.youtube.url} target="_blank" rel="noopener noreferrer" className="btn btn-red !px-5 !py-2.5">YouTube</a>
+<YouTubeDropdown variant="red" />
         </nav>
         <button className="label md:hidden" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? 'Fermer' : 'Menu'}</button>
       </div>
@@ -26,7 +26,7 @@ export default function Header() {
         <div className="border-t border-ink/10 bg-paper px-5 pb-8 pt-4 md:hidden">
           <nav className="flex flex-col gap-4">
             {navigation.map((n) => <a key={n.href} href={n.href} onClick={() => setOpen(false)} className="font-display text-2xl font-semibold">{n.label}</a>)}
-            <a href={brandData.youtube.url} className="btn btn-red mt-2 w-full">YouTube</a>
+<YouTubeDropdown variant="red" />
           </nav>
         </div>
       )}
