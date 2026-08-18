@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 
-export const revalidate = 3600; // ⭐ Cache route activé
+export const revalidate = 3600;
 
-const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || '';
 const FOLDER = process.env.CLOUDINARY_MEDIA_KIT_FOLDER || '';
 const FILENAME = process.env.CLOUDINARY_MEDIA_KIT_FILENAME ;
 const DOWNLOAD_NAME = 'La-Viree-d-Hector-Media-Kit.pdf';
-const CLOUD = process.env.NEXT_PUBLIC_CLOUD
-//  Validation du filename (pas de /, .., ou caractères spéciaux)
+
+// ⭐ Validation du filename (pas de caractères spéciaux)
 const SAFE_FILENAME = /^[a-zA-Z0-9._-]+$/;
 
 export async function GET() {
@@ -15,16 +15,20 @@ export async function GET() {
     console.error('[media-kit] CLOUD_NAME manquant');
     return NextResponse.json({ error: 'Configuration error' }, { status: 500 });
   }
-  
+
   if (!SAFE_FILENAME.test(FILENAME)) {
     console.error('[media-kit] Filename invalide');
     return NextResponse.json({ error: 'Configuration error' }, { status: 500 });
   }
 
- /* const pdfUrl = FOLDER && SAFE_FILENAME.test(FOLDER)
-    ? `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${FOLDER}/${FILENAME}`
-    : `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${FILENAME}`;*/
-const pdfUrl = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${FILENAME}`;
+  // ⭐ Mode actuel : sans folder
+  const pdfUrl = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${FILENAME}`;
+
+  // ⭐ Mode alternatif : avec folder (décommenter si besoin plus tard)
+  // if (FOLDER && SAFE_FILENAME.test(FOLDER)) {
+  //   const pdfUrl = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${FOLDER}/${FILENAME}`;
+  // }
+
   try {
     const res = await fetch(pdfUrl, { next: { revalidate: 3600 } });
     
@@ -34,7 +38,6 @@ const pdfUrl = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${FILENAME
         const rawRes = await fetch(rawUrl, { next: { revalidate: 3600 } });
         if (rawRes.ok) return servePdf(rawRes);
       }
-      // ⭐ Ne pas exposer l'URL
       return NextResponse.json({ error: 'Media kit temporarily unavailable' }, { status: 404 });
     }
 
@@ -52,6 +55,6 @@ async function servePdf(res: Response) {
   headers.set('Content-Disposition', `attachment; filename="${DOWNLOAD_NAME}"`);
   headers.set('Content-Length', buffer.byteLength.toString());
   headers.set('Cache-Control', 'public, max-age=3600');
-  headers.set('X-Content-Type-Options', 'nosniff'); // ⭐ Sécurité
+  headers.set('X-Content-Type-Options', 'nosniff');
   return new NextResponse(buffer, { status: 200, headers });
 }
