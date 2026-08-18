@@ -11,8 +11,8 @@ import {
   youtubeChannels, fallbackLatestVideos, mediaKitUrl, material,
   socialStats, brandsAudience,
 } from '@/data/viree';
-import type { LiveReview , LiveVideo , LiveChannel  } from '@/lib/types';
 import type { YoutubeChannel } from '@/data/viree';
+import type { VideoData, ReviewData, ChannelData } from '@/lib/site-data';
 function Head({ hand, title, sub }: { hand: string; title: string; sub?: string }) {
   return (
     <Reveal className="mb-12 md:mb-16">
@@ -90,9 +90,9 @@ export function StatsStrip() {
   const ref = useRef<HTMLElement>(null);
   const [started, setStarted] = useState(false);
   const { channels } = useSiteData();
-  const ytTotal = channels.reduce((a: number, c: LiveChannel) => a + (c.subscribers ?? 0), 0);
+  //  Type explicite pour l'accumulateur du reduce
+  const ytTotal = channels.reduce((a: number, c: ChannelData) => a + (c.subscribers ?? 0), 0);
 
-  // ⭐ Type explicite au lieu de `any`
   const icons: Record<string, ReactNode> = {
     'youtube': <YoutubeIcon className="h-5 w-5" />,
     'youtube-total': <YoutubeIcon className="h-5 w-5" />,
@@ -141,12 +141,12 @@ export function StatsStrip() {
 }
 
 export function VideosSection() {
-  const { videos } = useSiteData();
-  return (
-    <section id="videos" className="mx-auto w-full max-w-[1280px] scroll-mt-24 px-5 py-20 md:px-8 md:py-28">
+ const { videos } = useSiteData();
+   return (
+     <section id="videos" className="mx-auto w-full max-w-[1280px] scroll-mt-24 px-5 py-20 md:px-8 md:py-28">
       <Head hand="cliquez, ça se regarde" title="Nos dernières vidéos." sub="Les 4 dernières vidéos publiées sur nos chaînes, mises à jour automatiquement." />
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-        {videos.map((v: LiveVideo, i: number) => (
+       {videos.map((v: VideoData, i: number) => ( 
           <Reveal key={v.title} delay={(i % 4) * 90}>
             <a href={v.videoId ? `https://www.youtube.com/watch?v=${v.videoId}` : v.channelUrl} target="_blank" rel="noopener noreferrer"
                className={`group block polaroid ${i % 2 ? 'rotate-1' : '-rotate-1'} transition-transform duration-300 hover:rotate-0`}>
@@ -380,7 +380,7 @@ const SOURCE_LABELS: Record<string, { label: string; color: string }> = {
 };
 
 // ⭐ Composant extrait = écrit 1 seule fois
-function ReviewCard({ r, i, mobile = false }: { r: LiveReview; i: number; mobile?: boolean }) {
+function ReviewCard({ r, i, mobile = false }: { r: ReviewData; i: number; mobile?: boolean }) {  // ⭐ ReviewData
   const sourceMeta = SOURCE_LABELS[r.source] ?? { label: r.source, color: 'bg-mist/20 text-mist' };
   
   const inner = (
@@ -423,7 +423,7 @@ export function ReviewsSection() {
       {/* Mobile: scroll horizontal */}
       <div className="md:hidden">
         <div className="moments-strip -mx-5 flex snap-x snap-mandatory gap-6 overflow-x-auto px-5 pb-6">
-          {reviews.map((r: LiveReview, i: number) => (
+          {reviews.map((r: ReviewData, i: number) => (  // ⭐ ReviewData au lieu de LiveReview
             <Reveal key={i} delay={(i % 3) * 90}>
               <ReviewCard r={r} i={i} mobile />
             </Reveal>
@@ -434,7 +434,7 @@ export function ReviewsSection() {
 
       {/* Desktop: grid */}
       <div className="hidden md:grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {reviews.map((r: LiveReview, i: number) => (
+        {reviews.map((r: ReviewData, i: number) => (  // ⭐ ReviewData au lieu de LiveReview
           <Reveal key={i} delay={(i % 3) * 90}>
             <ReviewCard r={r} i={i} />
           </Reveal>

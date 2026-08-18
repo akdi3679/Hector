@@ -4,9 +4,17 @@ import { youtubeChannels, fallbackLatestVideos } from '@/data/viree';
 
 export interface ChannelData { id: string; handle: string; name: string; url: string; positioning: string; description: string; audience: string; themes: string[]; accent: string; subscribers: number | null; avatar: string | null; }
 export interface VideoData { videoId: string; title: string; description: string; thumb: string; publishedAt: string; channel: string; channelUrl: string; }
-export interface ReviewData { text: string; author: string; source: string; url: string; videoId: string; videoTitle: string; channel: string; likes: number; }
 export interface SiteData { live: boolean; channels: ChannelData[]; videos: VideoData[]; reviews: ReviewData[]; }
-
+export interface ReviewData {
+  text: string;
+  author: string;
+  source: 'youtube' | 'facebook' | 'instagram' | 'tiktok'; // ⭐ Union type strict
+  url: string;
+  videoId: string;
+  videoTitle: string;
+  channel: string;
+  likes: number;
+}
 const fallback: SiteData = {
   live: false,
   channels: youtubeChannels.map((c) => ({ ...c, subscribers: null, avatar: null })),
