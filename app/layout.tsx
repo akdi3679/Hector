@@ -31,7 +31,7 @@ const caveat = Caveat({
 
 // ⭐ Metadata SEO complète
 export const metadata: Metadata = {
-  metadataBase: new URL('https://lavireedhector.fr'),
+  metadataBase: new URL('https://hector-lake.vercel.app'),
   
   title: {
     default: 'La Virée d\'Hector — Voyager, découvrir, raconter | Créateurs de contenu',
