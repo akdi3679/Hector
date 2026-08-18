@@ -7,8 +7,7 @@ import { useSiteData } from '@/lib/site-data';
 import { Globe, ChevronLeft } from 'lucide-react';
 import { YoutubeIcon, InstagramIcon, FacebookIcon, TiktokIcon } from './SocialIcons';
 import {
-  brandData, navigation, videos, storyData, platforms, formats, collabs,
-  reviews, products, gallery, moments, youtubeChannels, fallbackLatestVideos,
+  brandData, navigation, videos, storyData, platforms, formats, collabs , products, gallery, moments, youtubeChannels, fallbackLatestVideos,
   mediaKitUrl, material,
 } from '@/data/viree';
 import { socialStats } from '@/data/viree';
