@@ -11,7 +11,7 @@ export async function GET() {
   }
 
   // ⭐ URL construite dynamiquement, sans version, sans hardcoding
-  const pdfUrl = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${FOLDER}/${FILENAME}`;
+  const pdfUrl = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${FILENAME}`;
 
   try {
     const res = await fetch(pdfUrl, { next: { revalidate: 3600 } });
