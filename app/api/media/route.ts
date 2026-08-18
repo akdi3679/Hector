@@ -6,7 +6,7 @@ const KEY = process.env.CLOUDINARY_API_KEY;
 const SECRET = process.env.CLOUDINARY_API_SECRET;
 
 // ⭐ Whitelist des folders autorisés
-const ALLOWED_FOLDERS = new Set(['hector/galerie', 'hector/moments']);
+const ALLOWED_FOLDERS = new Set(['galerie', 'moments']);
 
 async function list(type: 'image' | 'video', prefix: string, cursor: string) {
   const controller = new AbortController();
@@ -33,7 +33,7 @@ export async function GET(req: Request) {
   if (!CLOUD || !KEY || !SECRET) return NextResponse.json({ items: [], next: null });
   
   const q = new URL(req.url).searchParams;
-  const folder = q.get('folder') ?? 'hector/galerie';
+  const folder = q.get('folder') ?? 'galerie';
   
   // ⭐ Validation : folder doit être dans la whitelist
   if (!ALLOWED_FOLDERS.has(folder)) {
