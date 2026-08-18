@@ -4,10 +4,10 @@ export const revalidate = 3600; // ⭐ Cache route activé
 
 const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 const FOLDER = process.env.CLOUDINARY_MEDIA_KIT_FOLDER || '';
-const FILENAME = process.env.CLOUDINARY_MEDIA_KIT_FILENAME || 'Media-Kit.pdf';
+const FILENAME = process.env.CLOUDINARY_MEDIA_KIT_FILENAME ;
 const DOWNLOAD_NAME = 'La-Viree-d-Hector-Media-Kit.pdf';
 const CLOUD = process.env.NEXT_PUBLIC_CLOUD
-// ⭐ Validation du filename (pas de /, .., ou caractères spéciaux)
+//  Validation du filename (pas de /, .., ou caractères spéciaux)
 const SAFE_FILENAME = /^[a-zA-Z0-9._-]+$/;
 
 export async function GET() {
@@ -21,10 +21,10 @@ export async function GET() {
     return NextResponse.json({ error: 'Configuration error' }, { status: 500 });
   }
 
-  const pdfUrl = FOLDER && SAFE_FILENAME.test(FOLDER)
+ /* const pdfUrl = FOLDER && SAFE_FILENAME.test(FOLDER)
     ? `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${FOLDER}/${FILENAME}`
-    : `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${FILENAME}`;
-
+    : `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${FILENAME}`;*/
+const pdfUrl = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${FILENAME}`;
   try {
     const res = await fetch(pdfUrl, { next: { revalidate: 3600 } });
     
