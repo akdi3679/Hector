@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { youtubeChannels, fallbackLatestVideos } from '@/data/viree';
 import { curatedReviews } from '@/data/reviews';
-export const revalidate = 120; // Cache 2 minutes → le shuffle change souvent
+export const revalidate = 3600; // Cache 2 minutes → le shuffle change souvent
 const KEY = process.env.YOUTUBE_API_KEY;
 
 // Seules ces sources sont valides
@@ -34,7 +34,7 @@ async function getChannelReviewsSmart(uploadsPlaylistId: string, channelName: st
     if (!videoIds.length) return out;
 
     // 2. Mélange aléatoirement et prend 12 max
-    const shuffled = videoIds.sort(() => Math.random() - 0.5).slice(0, 12);
+    const shuffled = videoIds.sort(() => Math.random() - 0.5).slice(0, 6);
 
     // 3. Test chaque vidéo jusqu'à avoir assez de commentaires
     for (const vid of shuffled) {
@@ -99,7 +99,26 @@ function shuffle<T>(arr: T[]): T[] {
   return copy;
 }
 
-export async function GET() {
+// Rate limiting : max 5 requêtes par IP par minute
+const rateLimitMap = new Map<string, { count: number; reset: number }>();
+function rateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || entry.reset < now) {
+    rateLimitMap.set(ip, { count: 1, reset: now + 60_000 });
+    return true;
+  }
+  if (entry.count >= 5) return false;
+  entry.count++;
+  return true;
+}
+
+export async function GET(req: Request) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown';
+  if (!rateLimit(ip)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
   if (!KEY) {
     const fallbackReviews = shuffle(base.reviews.filter(isValidReview)).slice(0, 9);
     return NextResponse.json({ ...base, reviews: fallbackReviews });

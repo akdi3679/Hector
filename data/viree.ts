@@ -21,12 +21,6 @@ export const navigation = [
   { label: 'Galerie', href: '#galerie' },
 ];
 
-export const videos = [
-  { tag: 'Découverte', title: 'El Jem, face à 2 000 ans d’histoire', note: 'la Tunisie nous a soufflés', url: 'https://www.tiktok.com/@lavireedhector/video/7581768423806356758', image: 'https://images.unsplash.com/photo-1548013148-4249e6910e1c?q=80&w=1000&auto=format&fit=crop' },
-  { tag: 'Avec Allpowers', title: 'L’énergie qui ne nous lâche jamais', note: 'la R2500 vit à bord d’Hector', url: 'https://www.tiktok.com/@lavireedhector/video/7353891285008157985', image: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=1000&auto=format&fit=crop' },
-  { tag: 'Avec OutIn', title: 'Un espresso, avec vue sur tout', note: 'le luxe simple du matin', url: 'https://www.tiktok.com/@lavireedhector', image: 'https://images.unsplash.com/photo-1512568400610-62da28bc8a13?q=80&w=1000&auto=format&fit=crop' },
-  { tag: 'Matériel', title: 'Hector prend de la hauteur', note: 'le DJI Mini 5 Pro dans nos bagages', url: 'https://www.youtube.com/@lavireedhector', image: 'https://images.unsplash.com/photo-1473968512647-3e447244af8f?q=80&w=1000&auto=format&fit=crop' },
-];
 
 export const storyData = {
   title: 'Sophie, Jean-Marc… et Hector.',
@@ -56,30 +50,9 @@ export const formats = [
 
 export const collabs = ['Allpowers', 'OutIn', 'DJI'];
 
-// DÉMO — produits & prix à valider avec Sophie & Jean-Marc
-export const products = [
-  { name: 'Stickers Hector', desc: 'Le camion en autocollants, pour vitres et carnets.', price: '5 €', image: 'https://images.unsplash.com/photo-1616400928367-1bd3317776ad?q=80&w=800&auto=format&fit=crop' },
-  { name: 'Cartes postales de la route', desc: 'Nos étapes, imprimées comme au bon vieux temps.', price: '12 €', image: 'https://images.unsplash.com/photo-1512568400610-62da28bc8a13?q=80&w=800&auto=format&fit=crop' },
-  { name: 'Carnet de road-trip', desc: 'Le compagnon papier de vos propres virées.', price: '18 €', image: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?q=80&w=800&auto=format&fit=crop' },
-  { name: 'Presets photo du van', desc: 'Nos réglages lumière pour vos images de voyage.', price: '25 €', image: 'https://images.unsplash.com/photo-1473968512647-3e447244af8f?q=80&w=800&auto=format&fit=crop' },
-];
 
-export const gallery = [
-  { src: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=1200&auto=format&fit=crop', alt: 'Campement du soir' },
-  { src: 'https://images.unsplash.com/photo-1473968512647-3e447244af8f?q=80&w=1200&auto=format&fit=crop', alt: 'Le ciel de la route' },
-  { src: 'https://images.unsplash.com/photo-1548013148-4249e6910e1c?q=80&w=1200&auto=format&fit=crop', alt: 'Découverte en Tunisie' },
-  { src: 'https://images.unsplash.com/photo-1512568400610-62da28bc8a13?q=80&w=1200&auto=format&fit=crop', alt: 'Le café du matin' },
-  { src: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=1200&auto=format&fit=crop', alt: 'La route devant' },
-  { src: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=1200&auto=format&fit=crop', alt: 'Préparer la prochaine étape' },
-];
-// DÉMO — remplacer par vos vrais moments & légendes
-export const moments = [
-  { image: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=900&auto=format&fit=crop', caption: 'le premier réveil avec vue', emotion: 'liberté' },
-  { image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=900&auto=format&fit=crop', caption: 'la mer, enfin', emotion: 'émerveillement' },
-  { image: 'https://images.unsplash.com/photo-1516541196182-6bdb0516ed27?q=80&w=900&auto=format&fit=crop', caption: 'ce coucher de soleil qu’on n’a pas filmé', emotion: 'silence' },
-  { image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=900&auto=format&fit=crop', caption: 'perdus, mais ensemble', emotion: 'courage' },
-  { image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=900&auto=format&fit=crop', caption: 'le café préféré d’Hector', emotion: 'douceur' },
-];
+
+
 
 
 export interface YoutubeChannel {

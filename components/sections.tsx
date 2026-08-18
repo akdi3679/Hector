@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState , ReactNode } from 'react';
 import Reveal from './Reveal';
 import YouTubeDropdown from './YouTubeDropdown';
 import MediaStrip from './MediaStrip';
@@ -7,11 +7,13 @@ import { useSiteData } from '@/lib/site-data';
 import { Globe, ChevronLeft } from 'lucide-react';
 import { YoutubeIcon, InstagramIcon, FacebookIcon, TiktokIcon } from './SocialIcons';
 import {
-  brandData, navigation, videos, storyData, platforms, formats, collabs , products, gallery, moments, youtubeChannels, fallbackLatestVideos,
-  mediaKitUrl, material,
+  brandData, navigation, storyData, platforms, formats, collabs,
+  youtubeChannels, fallbackLatestVideos, mediaKitUrl, material,
+  socialStats, brandsAudience,
 } from '@/data/viree';
-import { socialStats } from '@/data/viree';
-import { brandsAudience } from '@/data/viree';
+import type { LiveReview , LiveVideo , LiveChannel  } from '@/lib/types';
+
+import { socialStats , brandsAudience  } from '@/data/viree';
 
 import type { YoutubeChannel } from '@/data/viree';
 function Head({ hand, title, sub }: { hand: string; title: string; sub?: string }) {
@@ -43,11 +45,10 @@ export function Hero() {
             Un camion aménagé nommé Hector, trois chaînes YouTube, et le monde comme jardin. Montez à bord — ou travaillons ensemble.
           </p>
           <div className="mt-10 flex flex-wrap gap-4">
-                     <div className="mt-10 flex flex-wrap gap-4">
             <YouTubeDropdown variant="red" />
             <a href="#marques" className="btn btn-ink">Espace marques</a>
           </div>
- </div>
+ 
         </div>
         <div className="relative md:col-span-5">
           <div className="polaroid polaroid-float rotate-2">
@@ -87,14 +88,15 @@ function CountValue({ target, suffix = '', decimals = 0, started }: { target: nu
 }
 
 
+
 export function StatsStrip() {
   const ref = useRef<HTMLElement>(null);
   const [started, setStarted] = useState(false);
   const { channels } = useSiteData();
-  const ytTotal = channels.reduce((a: number, c: any) => a + (c.subscribers ?? 0), 0);
+  const ytTotal = channels.reduce((a: number, c: LiveChannel) => a + (c.subscribers ?? 0), 0);
 
-  // Map les icônes
-  const icons: Record<string, any> = {
+  // ⭐ Type explicite au lieu de `any`
+  const icons: Record<string, ReactNode> = {
     'youtube': <YoutubeIcon className="h-5 w-5" />,
     'youtube-total': <YoutubeIcon className="h-5 w-5" />,
     'instagram': <InstagramIcon className="h-5 w-5" />,
@@ -140,13 +142,14 @@ export function StatsStrip() {
     </section>
   );
 }
+
 export function VideosSection() {
   const { videos } = useSiteData();
   return (
     <section id="videos" className="mx-auto w-full max-w-[1280px] scroll-mt-24 px-5 py-20 md:px-8 md:py-28">
       <Head hand="cliquez, ça se regarde" title="Nos dernières vidéos." sub="Les 4 dernières vidéos publiées sur nos chaînes, mises à jour automatiquement." />
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-        {videos.map((v: any, i: number) => (
+        {videos.map((v: LiveVideo, i: number) => (
           <Reveal key={v.title} delay={(i % 4) * 90}>
             <a href={v.videoId ? `https://www.youtube.com/watch?v=${v.videoId}` : v.channelUrl} target="_blank" rel="noopener noreferrer"
                className={`group block polaroid ${i % 2 ? 'rotate-1' : '-rotate-1'} transition-transform duration-300 hover:rotate-0`}>
@@ -166,7 +169,6 @@ export function VideosSection() {
     </section>
   );
 }
-
 export function StorySection() {
   return (
     <section id="apropos" className="mx-auto grid w-full max-w-[1280px] items-center gap-14 px-5 pb-20 md:px-8 md:pb-28 lg:grid-cols-2">
@@ -372,12 +374,43 @@ export function BrandsSection() {
   );
 }
 
+
 const SOURCE_LABELS: Record<string, { label: string; color: string }> = {
   youtube: { label: 'YouTube', color: 'bg-red/15 text-red' },
   facebook: { label: 'Facebook', color: 'bg-sky/20 text-sky' },
   instagram: { label: 'Instagram', color: 'bg-sunset/15 text-sunset' },
   tiktok: { label: 'TikTok', color: 'bg-ink/10 text-ink' },
 };
+
+// ⭐ Composant extrait = écrit 1 seule fois
+function ReviewCard({ r, i, mobile = false }: { r: LiveReview; i: number; mobile?: boolean }) {
+  const sourceMeta = SOURCE_LABELS[r.source] ?? { label: r.source, color: 'bg-mist/20 text-mist' };
+  
+  const inner = (
+    <figure className={`polaroid h-full ${mobile ? 'shrink-0 w-[280px] snap-center' : ''} ${i % 2 ? 'rotate-1' : '-rotate-1'} p-6`}>
+      <blockquote className="hand text-2xl leading-snug">« {r.text} »</blockquote>
+      <figcaption className="mt-4 space-y-1.5">
+        <div className="label flex items-center justify-between text-mist">
+          <span>{r.author}</span>
+          {r.likes > 0 && <span className="text-sunset">♥ {r.likes}</span>}
+        </div>
+        {r.channel && <p className="truncate text-xs font-semibold text-sunset">{r.channel}</p>}
+        {r.videoTitle && <p className="truncate text-xs text-mist/70">{r.videoTitle}</p>}
+      </figcaption>
+      <span className={`mt-3 inline-block rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${sourceMeta.color}`}>
+        {sourceMeta.label}
+      </span>
+    </figure>
+  );
+
+  return r.url ? (
+    <a href={r.url} target="_blank" rel="noopener noreferrer" className="block transition-transform hover:-translate-y-1">
+      {inner}
+    </a>
+  ) : (
+    inner
+  );
+}
 
 export function ReviewsSection() {
   const { reviews } = useSiteData();
@@ -393,74 +426,22 @@ export function ReviewsSection() {
       {/* Mobile: scroll horizontal */}
       <div className="md:hidden">
         <div className="moments-strip -mx-5 flex snap-x snap-mandatory gap-6 overflow-x-auto px-5 pb-6">
-          {reviews.map((r: any, i: number) => {
-            const sourceMeta = SOURCE_LABELS[r.source] ?? { label: r.source, color: 'bg-mist/20 text-mist' };
-            const inner = (
-              <figure className={`polaroid h-full shrink-0 w-[280px] snap-center ${i % 2 ? 'rotate-1' : '-rotate-1'} p-6`}>
-                <blockquote className="hand text-2xl leading-snug">« {r.text} »</blockquote>
-                <figcaption className="mt-4 space-y-1.5">
-                  <div className="label flex items-center justify-between text-mist">
-                    <span>{r.author}</span>
-                    {r.likes > 0 && <span className="text-sunset">♥ {r.likes}</span>}
-                  </div>
-                  {r.channel && <p className="truncate text-xs font-semibold text-sunset">{r.channel}</p>}
-                  {r.videoTitle && <p className="truncate text-xs text-mist/70">{r.videoTitle}</p>}
-                </figcaption>
-                <span className={`mt-3 inline-block rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${sourceMeta.color}`}>
-                  {sourceMeta.label}
-                </span>
-              </figure>
-            );
-
-            return (
-              <Reveal key={i} delay={(i % 3) * 90}>
-                {r.url ? (
-                  <a href={r.url} target="_blank" rel="noopener noreferrer" className="block transition-transform hover:-translate-y-1">
-                    {inner}
-                  </a>
-                ) : (
-                  inner
-                )}
-              </Reveal>
-            );
-          })}
+          {reviews.map((r: LiveReview, i: number) => (
+            <Reveal key={i} delay={(i % 3) * 90}>
+              <ReviewCard r={r} i={i} mobile />
+            </Reveal>
+          ))}
         </div>
         <p className="hand mt-2 text-center text-2xl text-mist">faites défiler →</p>
       </div>
 
       {/* Desktop: grid */}
       <div className="hidden md:grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {reviews.map((r: any, i: number) => {
-          const sourceMeta = SOURCE_LABELS[r.source] ?? { label: r.source, color: 'bg-mist/20 text-mist' };
-          const inner = (
-            <figure className={`polaroid h-full ${i % 2 ? 'rotate-1' : '-rotate-1'} p-6`}>
-              <blockquote className="hand text-2xl leading-snug">« {r.text} »</blockquote>
-              <figcaption className="mt-4 space-y-1.5">
-                <div className="label flex items-center justify-between text-mist">
-                  <span>{r.author}</span>
-                  {r.likes > 0 && <span className="text-sunset">♥ {r.likes}</span>}
-                </div>
-                {r.channel && <p className="truncate text-xs font-semibold text-sunset">{r.channel}</p>}
-                {r.videoTitle && <p className="truncate text-xs text-mist/70">{r.videoTitle}</p>}
-              </figcaption>
-              <span className={`mt-3 inline-block rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${sourceMeta.color}`}>
-                {sourceMeta.label}
-              </span>
-            </figure>
-          );
-
-          return (
-            <Reveal key={i} delay={(i % 3) * 90}>
-              {r.url ? (
-                <a href={r.url} target="_blank" rel="noopener noreferrer" className="block transition-transform hover:-translate-y-1">
-                  {inner}
-                </a>
-              ) : (
-                inner
-              )}
-            </Reveal>
-          );
-        })}
+        {reviews.map((r: LiveReview, i: number) => (
+          <Reveal key={i} delay={(i % 3) * 90}>
+            <ReviewCard r={r} i={i} />
+          </Reveal>
+        ))}
       </div>
     </section>
   );
@@ -497,11 +478,10 @@ export function FinalCTA() {
         <p className="hand text-3xl">montez à bord</p>
         <h2 className="mx-auto mt-2 max-w-3xl font-display text-5xl font-semibold md:text-7xl">{brandData.tagline}</h2>
         <div className="mt-10 flex flex-wrap justify-center gap-4">
-                <div className="mt-10 flex flex-wrap justify-center gap-4">
           <YouTubeDropdown variant="red" />
           <a href={brandData.instagram.url} target="_blank" rel="noopener noreferrer" className="btn btn-ink">Suivre la virée</a>
         </div>
- </div>
+ 
       </Reveal>
     </section>
   );
