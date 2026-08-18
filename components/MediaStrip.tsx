@@ -25,7 +25,7 @@ const load = useCallback(async (cursor?: string) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
 
 useEffect(() => {
