@@ -360,31 +360,52 @@ export function BrandsSection() {
   );
 }
 
+const SOURCE_LABELS: Record<string, { label: string; color: string }> = {
+  youtube: { label: 'YouTube', color: 'bg-red/15 text-red' },
+  facebook: { label: 'Facebook', color: 'bg-sky/20 text-sky' },
+  instagram: { label: 'Instagram', color: 'bg-sunset/15 text-sunset' },
+  tiktok: { label: 'TikTok', color: 'bg-ink/10 text-ink' },
+};
+
 export function ReviewsSection() {
   const { reviews } = useSiteData();
+
   return (
     <section className="mx-auto w-full max-w-[1280px] px-5 py-20 md:px-8 md:py-28">
-      <Head hand="ce qui nous fait avancer" title="Vos messages nous portent." sub="De vrais commentaires laissés sous nos vidéos — cliquez pour voir la vidéo." />
+      <Head
+        hand="ce qui nous fait avancer"
+        title="Vos messages nous portent."
+        sub="Témoignages de notre communauté — cliquez pour voir la source."
+      />
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {reviews.map((r: any, i: number) => {
+          const sourceMeta = SOURCE_LABELS[r.source] ?? { label: r.source, color: 'bg-mist/20 text-mist' };
           const inner = (
             <figure className={`polaroid h-full ${i % 2 ? 'rotate-1' : '-rotate-1'} p-6`}>
               <blockquote className="hand text-2xl leading-snug">« {r.text} »</blockquote>
-              <figcaption className="label mt-4 flex items-center justify-between text-mist">
-                <span>{r.author}</span>
-                {r.likes > 0 && <span className="text-sunset">♥ {r.likes}</span>}
-              </figcaption>
-              <div className="mt-2 space-y-0.5">
+              <figcaption className="mt-4 space-y-1.5">
+                <div className="label flex items-center justify-between text-mist">
+                  <span>{r.author}</span>
+                  {r.likes > 0 && <span className="text-sunset">♥ {r.likes}</span>}
+                </div>
                 {r.channel && <p className="truncate text-xs font-semibold text-sunset">{r.channel}</p>}
                 {r.videoTitle && <p className="truncate text-xs text-mist/70">{r.videoTitle}</p>}
-              </div>
+              </figcaption>
+              <span className={`mt-3 inline-block rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${sourceMeta.color}`}>
+                {sourceMeta.label}
+              </span>
             </figure>
           );
+
           return (
             <Reveal key={i} delay={(i % 3) * 90}>
-              {r.videoId
-                ? <a href={`https://www.youtube.com/watch?v=${r.videoId}`} target="_blank" rel="noopener noreferrer" className="block transition-transform hover:-translate-y-1">{inner}</a>
-                : inner}
+              {r.url ? (
+                <a href={r.url} target="_blank" rel="noopener noreferrer" className="block transition-transform hover:-translate-y-1">
+                  {inner}
+                </a>
+              ) : (
+                inner
+              )}
             </Reveal>
           );
         })}
@@ -392,7 +413,6 @@ export function ReviewsSection() {
     </section>
   );
 }
-
 export function MomentsSection() {
   return (
     <section className="overflow-hidden py-20 md:py-28">

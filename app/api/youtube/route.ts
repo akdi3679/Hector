@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
-import { youtubeChannels, fallbackLatestVideos, reviews as staticReviews } from '@/data/viree';
-
-export const revalidate = 3600;
+import { youtubeChannels, fallbackLatestVideos } from '@/data/viree';
+import { curatedReviews } from '@/data/reviews';
+export const revalidate = 120; // Cache 2 minutes → le shuffle change souvent
 const KEY = process.env.YOUTUBE_API_KEY;
+
+// Seules ces sources sont valides
+const VALID_SOURCES = new Set(['youtube', 'facebook', 'instagram', 'tiktok']);
 
 const yt = async (p: string) => {
   const r = await fetch(`https://www.googleapis.com/youtube/v3/${p}`, { next: { revalidate: 3600 } });
@@ -14,65 +17,96 @@ const base = {
   live: false,
   channels: youtubeChannels.map((c) => ({ ...c, subscribers: null, avatar: null })),
   videos: fallbackLatestVideos.map((v) => ({ videoId: '', title: v.title, description: '', thumb: v.image, publishedAt: '', channel: v.tag, channelUrl: v.url })),
-  reviews: staticReviews.map((r) => ({ text: r.text, author: r.from, authorUrl: '', likes: 0, videoId: '', videoTitle: '' })),
+  reviews: curatedReviews.filter((r) => VALID_SOURCES.has(r.source)),
 };
 
 /**
- * Pour chaque chaîne, cherche 3 commentaires dans ses dernières vidéos.
- * Skip silencieusement les vidéos avec commentaires désactivés.
+ * Recherche intelligente : test jusqu'à 12 vidéos choisies au hasard dans la liste des uploads.
+ * Skip les vidéos avec commentaires désactivés. Arrête dès qu'on a 3 reviews.
  */
-async function getChannelReviews(uploadsPlaylistId: string, channelName: string): Promise<any[]> {
+async function getChannelReviewsSmart(uploadsPlaylistId: string, channelName: string, limit = 3): Promise<any[]> {
   const out: any[] = [];
-  
+
   try {
-    // Récupère les 15 dernières vidéos de la chaîne
-    const pl = await yt(`playlistItems?part=snippet&maxResults=15&playlistId=${uploadsPlaylistId}&key=${KEY}`);
+    // 1. Récupère les IDs de 30 vidéos (léger, 1 seul appel)
+    const pl = await yt(`playlistItems?part=snippet&maxResults=30&playlistId=${uploadsPlaylistId}&key=${KEY}`);
     const videoIds: string[] = (pl.items ?? []).map((v: any) => v.snippet?.resourceId?.videoId).filter(Boolean);
-    
-    for (const vid of videoIds) {
-      if (out.length >= 3) break;
-      
+    if (!videoIds.length) return out;
+
+    // 2. Mélange aléatoirement et prend 12 max
+    const shuffled = videoIds.sort(() => Math.random() - 0.5).slice(0, 12);
+
+    // 3. Test chaque vidéo jusqu'à avoir assez de commentaires
+    for (const vid of shuffled) {
+      if (out.length >= limit) break;
+
       try {
-        // Récupère les commentaires top de cette vidéo
         const ct = await yt(`commentThreads?part=snippet&videoId=${vid}&order=relevance&maxResults=5&key=${KEY}`);
-        
-        // Récupère le titre de la vidéo pour l'affichage
+        if (!ct.items?.length) continue;
+
         const v = await yt(`videos?part=snippet&ids=${vid}&key=${KEY}`);
         const vTitle = v.items?.[0]?.snippet?.title ?? '';
-        
+
         for (const it of ct.items ?? []) {
-          if (out.length >= 3) break;
+          if (out.length >= limit) break;
           const s = it.snippet?.topLevelComment?.snippet;
           if (s && (s.textDisplay || '').trim().length > 10) {
             out.push({
               text: s.textDisplay.replace(/<[^>]*>/g, '').slice(0, 220),
               author: s.authorDisplayName ?? 'communauté',
-              authorUrl: s.authorChannelUrl ?? '',
-              likes: s.likeCount ?? 0,
+              source: 'youtube',
+              url: `https://www.youtube.com/watch?v=${vid}`,
               videoId: vid,
               videoTitle: vTitle,
               channel: channelName,
+              likes: s.likeCount ?? 0,
             });
           }
         }
-      } catch (err: any) {
-        // 403 commentsDisabled, 404, ou autre erreur → skip cette vidéo
-        // On continue avec la vidéo suivante
+      } catch {
+        // 403 commentaires désactivés → skip cette vidéo
         continue;
       }
     }
   } catch {
-    // Erreur globale (playlist introuvable, etc.) → on retourne vide
+    // Erreur globale → vide
   }
-  
+
   return out;
 }
 
+/**
+ * Vérifie qu'une review a une source valide
+ */
+function isValidReview(r: any): boolean {
+  return (
+    r &&
+    typeof r.text === 'string' &&
+    r.text.trim().length > 0 &&
+    VALID_SOURCES.has(r.source)
+  );
+}
+
+/**
+ * Mélange un tableau aléatoirement
+ */
+function shuffle<T>(arr: T[]): T[] {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
 export async function GET() {
-  if (!KEY) return NextResponse.json(base);
+  if (!KEY) {
+    const fallbackReviews = shuffle(base.reviews.filter(isValidReview)).slice(0, 9);
+    return NextResponse.json({ ...base, reviews: fallbackReviews });
+  }
 
   try {
-    // 1. Chaînes + vidéos récentes (pour la section vidéos)
+    // 1. Chaînes + vidéos récentes
     const channels: any[] = [];
     const allVideos: any[] = [];
     const playlistIds: Array<{ id: string; name: string }> = [];
@@ -80,7 +114,10 @@ export async function GET() {
     for (const c of youtubeChannels) {
       const ch = await yt(`channels?part=snippet,statistics,contentDetails&forHandle=${encodeURIComponent(c.handle)}&key=${KEY}`);
       const item = ch.items?.[0];
-      if (!item) { channels.push({ ...c, subscribers: null, avatar: null }); continue; }
+      if (!item) {
+        channels.push({ ...c, subscribers: null, avatar: null });
+        continue;
+      }
 
       channels.push({
         ...c,
@@ -91,7 +128,7 @@ export async function GET() {
       const uploads = item.contentDetails?.relatedPlaylists?.uploads;
       if (uploads) {
         playlistIds.push({ id: uploads, name: c.name });
-        
+
         const pl = await yt(`playlistItems?part=snippet&maxResults=4&playlistId=${uploads}&key=${KEY}`);
         for (const v of pl.items ?? []) {
           allVideos.push({
@@ -110,22 +147,28 @@ export async function GET() {
     allVideos.sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt));
     const videos = allVideos.slice(0, 4);
 
-    // 2. Reviews : 3 commentaires par chaîne, en sautant les vidéos verrouillées
-    const reviews: any[] = [];
+    // 2. Reviews YouTube (recherche intelligente)
+    const ytReviews: any[] = [];
     for (const pl of playlistIds) {
-      const channelReviews = await getChannelReviews(pl.id, pl.name);
-      reviews.push(...channelReviews);
+      const found = await getChannelReviewsSmart(pl.id, pl.name, 3);
+      ytReviews.push(...found);
     }
 
-    const finalReviews = reviews.length >= 6 ? reviews : base.reviews;
+    // 3. Fusionne YouTube + curated, filtre les sources invalides, mélange, max 9
+    const allReviews = [...ytReviews, ...curatedReviews].filter(isValidReview);
+    const reviews = shuffle(allReviews).slice(0, 9);
 
+       
     return NextResponse.json({
       live: true,
       channels,
       videos: videos.length ? videos : base.videos,
-      reviews: finalReviews,
+      reviews, // Seulement 9 — les autres ne quittent jamais le serveur
+      reviewsCount: reviews.length,
     });
   } catch {
-    return NextResponse.json(base);
+    const fallbackReviews = shuffle(base.reviews.filter(isValidReview)).slice(0, 9);
+    return NextResponse.json({ ...base, reviews: fallbackReviews });
   }
+
 }

@@ -53,14 +53,6 @@ export const formats = [
 
 export const collabs = ['Allpowers', 'OutIn', 'DJI'];
 
-// DÉMO — remplacer par de vrais messages de la communauté
-export const reviews = [
-  { text: 'Vous nous donnez envie de tout quitter, nous aussi. Ne lâchez rien !', from: 'message de la communauté' },
-  { text: 'Hector est devenu notre camion préféré à nous aussi.', from: 'message de la communauté' },
-  { text: 'Chaque vidéo est une bouffée d’air. Continuez exactement comme ça.', from: 'message de la communauté' },
-  { text: 'On a acheté notre fourgon grâce à vos conseils. Merci pour tout.', from: 'message de la communauté' },
-];
-
 // DÉMO — produits & prix à valider avec Sophie & Jean-Marc
 export const products = [
   { name: 'Stickers Hector', desc: 'Le camion en autocollants, pour vitres et carnets.', price: '5 €', image: 'https://images.unsplash.com/photo-1616400928367-1bd3317776ad?q=80&w=800&auto=format&fit=crop' },
