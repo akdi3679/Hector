@@ -129,15 +129,22 @@ body { @apply bg-paper font-sans text-ink antialiased; }
   box-shadow: 0 12px 32px -10px rgb(22 41 74 / .45);
 }
 
-/* ⭐ Forcer overflow visible sur tous les ancêtres de moments-strip */
-/* Cela empêche les parents de couper la scrollbar */
-.moments-strip,
-.moments-strip * {
-  overflow: visible !important;
+/* Box-shadow sur les images/vidéos de la bande */
+.moments-strip img,
+.moments-strip video {
+  box-shadow: 0 12px 32px -10px rgb(22 41 74 / .45);
 }
 
-/* ⭐ Sauf le conteneur de scroll lui-même qui a besoin de overflow-x-auto */
+/* ⭐ Le conteneur de scroll a du padding-bottom pour laisser place à la scrollbar */
 .moments-strip {
-  overflow-x: auto !important;
-  overflow-y: visible !important;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-sun) rgb(22 41 74 / .08);
+  padding-bottom: 20px;
+}
+
+
+/* ⭐ Chaque image est protégée dans son propre conteneur */
+/* Cela maintient le ratio sans casser le scroll */
+.moments-strip .card-img {
+  overflow: hidden;
 }
