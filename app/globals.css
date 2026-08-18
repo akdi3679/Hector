@@ -123,15 +123,14 @@ body { @apply bg-paper font-sans text-ink antialiased; }
   border-radius: 999px;
   margin: 0 20px; /* ⭐ Même marge que le thumb */
 }
-/* ⭐ Box-shadow sur les images/vidéos de la bande */
-.moments-strip img,
-.moments-strip video {
-  box-shadow: 0 12px 32px -10px rgb(22 41 74 / .45);
-}
 
-/* Box-shadow sur les images/vidéos de la bande */
+/* ⭐ Images visibles et bien dimensionnées */
 .moments-strip img,
 .moments-strip video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   box-shadow: 0 12px 32px -10px rgb(22 41 74 / .45);
 }
 
@@ -140,6 +139,7 @@ body { @apply bg-paper font-sans text-ink antialiased; }
   scrollbar-width: thin;
   scrollbar-color: var(--color-sun) rgb(22 41 74 / .08);
   padding-bottom: 20px;
+  padding-top: 20px;
 }
 
 

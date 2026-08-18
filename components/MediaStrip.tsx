@@ -37,12 +37,13 @@ export default function MediaStrip({ folder, tall = false }: { folder: string; t
  return (
   <div>
     {/* ⭐ Conteneur de scroll avec padding-bottom pour la scrollbar */}
-    <div className="moments-strip flex snap-x snap-mandatory gap-6 overflow-x-auto pl-5 pr-5">
+     <div className="moments-strip flex snap-x snap-mandatory items-center gap-6 overflow-x-auto pl-5 pr-5">
       {items.map((m, i) => (
         <div
           key={m.id}
           className={`polaroid shrink-0 snap-center ${i % 2 ? 'rotate-1' : '-rotate-1'} ${tall ? 'w-[300px] md:w-[340px]' : 'w-[260px] md:w-[320px]'}`}
         >
+
           {/* ⭐ Conteneur individuel qui protège l'image */}
           <div className={`card-img w-full overflow-hidden ${h}`}>
             {m.type === 'video' ? (
