@@ -1,3 +1,6 @@
+export { material } from './material';
+export { mediaKitUrl } from './media';
+export { socialStats, brandsAudience } from './social-stats';
 export const brandData = {
   name: 'La Virée d’Hector',
   tagline: 'It’s time to go.',
@@ -77,14 +80,7 @@ export const moments = [
   { image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=900&auto=format&fit=crop', caption: 'perdus, mais ensemble', emotion: 'courage' },
   { image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=900&auto=format&fit=crop', caption: 'le café préféré d’Hector', emotion: 'douceur' },
 ];
-// Matériel RÉEL, vérifié dans leur contenu
-export const gear = [
-  { name: 'Hector, PL aménagé', role: 'maison, studio & véhicule', note: 'le décor de toutes nos vidéos' },
-  { name: 'Station Allpowers R2500', role: 'énergie nomade', note: 'partenariat — testée des mois' },
-  { name: 'DJI Mini 5 Pro', role: 'prises de vue aériennes', note: 'pris en main en conditions de voyage' },
-  { name: 'OutIn Nano', role: 'espresso à bord', note: 'partenariat' },
-  { name: 'PC de montage sur-mesure', role: 'watercooling & étalonnage', note: 'des vidéos dignes de ce nom' },
-];
+
 
 export interface YoutubeChannel {
   id: string;
@@ -141,4 +137,4 @@ export const fallbackLatestVideos = [
   { title: 'El Jem, face à 2 000 ans d’histoire', tag: 'Travel', url: 'https://www.tiktok.com/@lavireedhector/video/7581768423806356758', image: 'https://images.unsplash.com/photo-1548013148-4249e6910e1c?q=80&w=1000&auto=format&fit=crop' },
   { title: 'L’énergie qui ne nous lâche jamais (Allpowers R2500)', tag: 'La Virée d’Hector', url: 'https://www.tiktok.com/@lavireedhector/video/7353891285008157985', image: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=1000&auto=format&fit=crop' },
 ];
-export const mediaKitUrl = 'https://res.cloudinary.com/demo/raw/upload/v1/media-kit.pdf';
+export const mediaKitUrl = 'https://res.cloudinary.com/du0frvxjo/image/upload/v1/mediakit/media-kit.pdf';

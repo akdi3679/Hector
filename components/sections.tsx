@@ -4,11 +4,15 @@ import Reveal from './Reveal';
 import YouTubeDropdown from './YouTubeDropdown';
 import MediaStrip from './MediaStrip';
 import { useSiteData } from '@/lib/site-data';
-import { Globe, Truck, BatteryCharging, Camera, Coffee, Cpu, ChevronLeft } from 'lucide-react';
+import { Globe, ChevronLeft } from 'lucide-react';
 import { YoutubeIcon, InstagramIcon, FacebookIcon, TiktokIcon } from './SocialIcons';
 import {
-  brandData, navigation, videos, storyData, platforms, formats, collabs , products, gallery, gear, moments, youtubeChannels, fallbackLatestVideos, mediaKitUrl,
+  brandData, navigation, videos, storyData, platforms, formats, collabs,
+  reviews, products, gallery, moments, youtubeChannels, fallbackLatestVideos,
+  mediaKitUrl, material,
 } from '@/data/viree';
+import { socialStats } from '@/data/viree';
+import { brandsAudience } from '@/data/viree';
 
 import type { YoutubeChannel } from '@/data/viree';
 function Head({ hand, title, sub }: { hand: string; title: string; sub?: string }) {
@@ -83,44 +87,52 @@ function CountValue({ target, suffix = '', decimals = 0, started }: { target: nu
   return <span>{shown}{suffix}</span>;
 }
 
+
 export function StatsStrip() {
   const ref = useRef<HTMLElement>(null);
   const [started, setStarted] = useState(false);
   const { channels } = useSiteData();
   const ytTotal = channels.reduce((a: number, c: any) => a + (c.subscribers ?? 0), 0);
 
+  // Map les icônes
+  const icons: Record<string, any> = {
+    'youtube': <YoutubeIcon className="h-5 w-5" />,
+    'youtube-total': <YoutubeIcon className="h-5 w-5" />,
+    'instagram': <InstagramIcon className="h-5 w-5" />,
+    'facebook': <FacebookIcon className="h-5 w-5" />,
+    'tiktok': <TiktokIcon className="h-5 w-5" />,
+  };
+
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const io = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting) {
-          setStarted(true);
-          io.disconnect();
-        }
-      },
-      { threshold: 0.2 }
-    );
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setStarted(true); io.disconnect(); } }, { threshold: 0.2 });
     io.observe(el);
     return () => io.disconnect();
   }, []);
 
-  const items = [
-    { href: brandData.youtube.url, icon: <YoutubeIcon className="h-5 w-5" />, value: <CountValue target={3} started={started} />, label: 'chaînes YouTube' },
-    { href: brandData.youtube.url, icon: <YoutubeIcon className="h-5 w-5" />, value: ytTotal ? <CountValue target={ytTotal} started={started} /> : <span>—</span>, label: 'abonnés YouTube' },
-    { href: brandData.instagram.url, icon: <InstagramIcon className="h-5 w-5" />, value: <CountValue target={11.6} suffix="K" decimals={1} started={started} />, label: 'abonnés Instagram' },
-    { href: brandData.facebook.url, icon: <FacebookIcon className="h-5 w-5" />, value: <CountValue target={7.5} suffix="K" decimals={1} started={started} />, label: 'abonnés Facebook' },
-    { href: brandData.tiktok.url, icon: <TiktokIcon className="h-5 w-5" />, value: <span>∞</span>, label: 'TikTok' },
-  ];
+  const items = socialStats.map((s) => ({
+    ...s,
+    value: s.platform === 'youtube-total' && ytTotal > 0 ? ytTotal : s.value,
+    icon: icons[s.platform],
+  }));
 
   return (
     <section ref={ref} className="bg-ink py-12 text-paper">
       <div className="mx-auto grid w-full max-w-[1280px] grid-cols-2 gap-8 px-5 sm:grid-cols-5 md:px-8">
         {items.map((s, i: number) => (
           <Reveal key={s.label} delay={i * 80} className="text-center">
-            <a href={s.href} target="_blank" rel="noopener noreferrer" className="group block" aria-label={s.label}>
+            <a href={s.url} target="_blank" rel="noopener noreferrer" className="group block" aria-label={s.label}>
               <span className="mx-auto mb-3 grid h-11 w-11 place-items-center rounded-full border border-sun/40 text-sun transition-transform group-hover:scale-110">{s.icon}</span>
-              <p className="font-display text-3xl font-semibold text-sun">{s.value}</p>
+              <p className="font-display text-3xl font-semibold text-sun">
+                {s.platform === 'youtube-total' && ytTotal > 0 ? (
+                  <CountValue target={ytTotal} started={started} />
+                ) : s.suffix === '∞' ? (
+                  <span>∞</span>
+                ) : (
+                  <CountValue target={s.value} suffix={s.suffix} decimals={s.decimals} started={started} />
+                )}
+              </p>
               <p className="label mt-2 text-paper/70">{s.label}</p>
             </a>
           </Reveal>
@@ -251,7 +263,6 @@ export function EcosystemSection() {
   );
 }
 export function MaterialSection() {
-  const icons = [Truck, BatteryCharging, Camera, Coffee, Cpu];
   return (
     <section id="materiel" className="scroll-mt-24 overflow-hidden py-20 md:py-28">
       <div className="mx-auto w-full max-w-[1280px] px-5 md:px-8">
@@ -260,8 +271,8 @@ export function MaterialSection() {
       </div>
       <Reveal>
         <div className="moments-strip flex snap-x snap-mandatory gap-6 overflow-x-auto px-5 pb-6 md:px-[max(2rem,calc((100vw-1280px)/2))]">
-          {gear.map((g, i) => {
-            const Icon = icons[i % icons.length];
+          {material.map((g, i) => {
+            const Icon = g.icon;
             return (
               <div key={g.name} className="ticket w-[260px] shrink-0 snap-center p-6 md:w-[300px]">
                 <Icon className="h-6 w-6 text-sunset" />
@@ -325,18 +336,20 @@ export function BrandsSection() {
             </Reveal>
 
             {/* NOUVEAU : audience snapshot */}
-            <Reveal delay={80}>
-              <div className="ticket !border-paper/25 !bg-paper/5 p-6">
-                <p className="label mb-4 text-paper/60">Audience cumulée</p>
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div><p className="font-display text-2xl font-semibold text-sun">3</p><p className="text-xs text-paper/60">chaînes YouTube</p></div>
-                  <div><p className="font-display text-2xl font-semibold text-sun">11,6K</p><p className="text-xs text-paper/60">Instagram</p></div>
-                  <div><p className="font-display text-2xl font-semibold text-sun">7,5K</p><p className="text-xs text-paper/60">Facebook</p></div>
-                  <div><p className="font-display text-2xl font-semibold text-sun">∞</p><p className="text-xs text-paper/60">TikTok</p></div>
-                </div>
-                <p className="mt-4 text-xs text-paper/50">Détails démographie & engagement dans le media kit.</p>
-              </div>
-            </Reveal>
+           <Reveal delay={80}>
+  <div className="ticket !border-paper/25 !bg-paper/5 p-6">
+    <p className="label mb-4 text-paper/60">Audience cumulée</p>
+    <div className="grid grid-cols-2 gap-4 text-center">
+      {brandsAudience.map((item) => (
+        <div key={item.label}>
+          <p className="font-display text-2xl font-semibold text-sun">{item.value}</p>
+          <p className="text-xs text-paper/60">{item.label}</p>
+        </div>
+      ))}
+    </div>
+    <p className="mt-4 text-xs text-paper/50">Détails démographie & engagement dans le media kit.</p>
+  </div>
+</Reveal>
 
             {/* MEDIA KIT — emplacement professionnel */}
             <Reveal delay={160}>
@@ -377,7 +390,47 @@ export function ReviewsSection() {
         title="Vos messages nous portent."
         sub="Témoignages de notre communauté — cliquez pour voir la source."
       />
-      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      
+      {/* Mobile: scroll horizontal */}
+      <div className="md:hidden">
+        <div className="moments-strip -mx-5 flex snap-x snap-mandatory gap-6 overflow-x-auto px-5 pb-6">
+          {reviews.map((r: any, i: number) => {
+            const sourceMeta = SOURCE_LABELS[r.source] ?? { label: r.source, color: 'bg-mist/20 text-mist' };
+            const inner = (
+              <figure className={`polaroid h-full shrink-0 w-[280px] snap-center ${i % 2 ? 'rotate-1' : '-rotate-1'} p-6`}>
+                <blockquote className="hand text-2xl leading-snug">« {r.text} »</blockquote>
+                <figcaption className="mt-4 space-y-1.5">
+                  <div className="label flex items-center justify-between text-mist">
+                    <span>{r.author}</span>
+                    {r.likes > 0 && <span className="text-sunset">♥ {r.likes}</span>}
+                  </div>
+                  {r.channel && <p className="truncate text-xs font-semibold text-sunset">{r.channel}</p>}
+                  {r.videoTitle && <p className="truncate text-xs text-mist/70">{r.videoTitle}</p>}
+                </figcaption>
+                <span className={`mt-3 inline-block rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${sourceMeta.color}`}>
+                  {sourceMeta.label}
+                </span>
+              </figure>
+            );
+
+            return (
+              <Reveal key={i} delay={(i % 3) * 90}>
+                {r.url ? (
+                  <a href={r.url} target="_blank" rel="noopener noreferrer" className="block transition-transform hover:-translate-y-1">
+                    {inner}
+                  </a>
+                ) : (
+                  inner
+                )}
+              </Reveal>
+            );
+          })}
+        </div>
+        <p className="hand mt-2 text-center text-2xl text-mist">faites défiler →</p>
+      </div>
+
+      {/* Desktop: grid */}
+      <div className="hidden md:grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {reviews.map((r: any, i: number) => {
           const sourceMeta = SOURCE_LABELS[r.source] ?? { label: r.source, color: 'bg-mist/20 text-mist' };
           const inner = (
