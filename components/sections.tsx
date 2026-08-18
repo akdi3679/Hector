@@ -365,7 +365,7 @@ export function ReviewsSection() {
   return (
     <section className="mx-auto w-full max-w-[1280px] px-5 py-20 md:px-8 md:py-28">
       <Head hand="ce qui nous fait avancer" title="Vos messages nous portent." sub="De vrais commentaires laissés sous nos vidéos — cliquez pour voir la vidéo." />
-      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {reviews.map((r: any, i: number) => {
           const inner = (
             <figure className={`polaroid h-full ${i % 2 ? 'rotate-1' : '-rotate-1'} p-6`}>
@@ -374,11 +374,14 @@ export function ReviewsSection() {
                 <span>{r.author}</span>
                 {r.likes > 0 && <span className="text-sunset">♥ {r.likes}</span>}
               </figcaption>
-              {r.videoTitle && <p className="mt-2 truncate text-xs text-mist/70">sur : {r.videoTitle}</p>}
+              <div className="mt-2 space-y-0.5">
+                {r.channel && <p className="truncate text-xs font-semibold text-sunset">{r.channel}</p>}
+                {r.videoTitle && <p className="truncate text-xs text-mist/70">{r.videoTitle}</p>}
+              </div>
             </figure>
           );
           return (
-            <Reveal key={i} delay={(i % 4) * 90}>
+            <Reveal key={i} delay={(i % 3) * 90}>
               {r.videoId
                 ? <a href={`https://www.youtube.com/watch?v=${r.videoId}`} target="_blank" rel="noopener noreferrer" className="block transition-transform hover:-translate-y-1">{inner}</a>
                 : inner}
@@ -389,7 +392,6 @@ export function ReviewsSection() {
     </section>
   );
 }
-
 
 export function MomentsSection() {
   return (
