@@ -82,27 +82,27 @@ body { @apply bg-paper font-sans text-ink antialiased; }
 @keyframes breathe { from { scale: 1; } to { scale: 1.07; } }
 
 /* pellicule : scrollbar fine couleur soleil */
-/* pellicule : scrollbar fine couleur soleil - CORRIGÉ */
+/* pellicule : scrollbar complète, pas coupée */
 .moments-strip { 
   scrollbar-width: thin; 
   scrollbar-color: var(--color-sun) transparent;
-  padding-bottom: 12px; /* ⭐ Ajoute de l'espace pour la scrollbar */
 }
 
 .moments-strip::-webkit-scrollbar { 
-  height: 8px; /* ⭐ Plus épaisse pour mieux voir */
-  margin: 0 20px; /* ⭐ Marge sur les côtés */
+  height: 6px;
 }
 
 .moments-strip::-webkit-scrollbar-thumb { 
   background: var(--color-sun); 
   border-radius: 999px;
-  border: 2px solid transparent; /* ⭐ Bordure transparente pour effet "flottant" */
-  background-clip: padding-box;
 }
 
 .moments-strip::-webkit-scrollbar-track { 
-  background: rgb(22 41 74 / .05); 
+  background: rgb(22 41 74 / .08); 
   border-radius: 999px;
-  margin: 0 20px; /* ⭐ Même marge que le thumb */
+}
+
+/* Empêche le clip de la scrollbar */
+.moments-strip {
+  scrollbar-gutter: stable;
 }
