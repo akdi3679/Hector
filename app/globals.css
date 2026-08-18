@@ -142,9 +142,3 @@ body { @apply bg-paper font-sans text-ink antialiased; }
   padding-top: 20px;
 }
 
-
-/* ⭐ Chaque image est protégée dans son propre conteneur */
-/* Cela maintient le ratio sans casser le scroll */
-.moments-strip .card-img {
-  overflow: hidden;
-}
