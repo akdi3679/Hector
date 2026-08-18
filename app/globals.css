@@ -82,27 +82,27 @@ body { @apply bg-paper font-sans text-ink antialiased; }
 @keyframes breathe { from { scale: 1; } to { scale: 1.07; } }
 
 /* pellicule : scrollbar fine couleur soleil */
-/* Bande de défilement : scrollbar visible, images pleine taille */
+/* pellicule : scrollbar fine couleur soleil - CORRIGÉ */
 .moments-strip { 
   scrollbar-width: thin; 
-  scrollbar-color: var(--color-sun) rgb(22 41 74 / .08);
+  scrollbar-color: var(--color-sun) transparent;
+  padding-bottom: 12px; /* ⭐ Ajoute de l'espace pour la scrollbar */
 }
 
 .moments-strip::-webkit-scrollbar { 
-  height: 6px;
+  height: 8px; /* ⭐ Plus épaisse pour mieux voir */
+  margin: 0 20px; /* ⭐ Marge sur les côtés */
 }
 
 .moments-strip::-webkit-scrollbar-thumb { 
   background: var(--color-sun); 
   border-radius: 999px;
+  border: 2px solid transparent; /* ⭐ Bordure transparente pour effet "flottant" */
+  background-clip: padding-box;
 }
 
 .moments-strip::-webkit-scrollbar-track { 
-  background: rgb(22 41 74 / .08); 
+  background: rgb(22 41 74 / .05); 
   border-radius: 999px;
-}
-
-/* Réduit l'ombre des polaroids pour ne pas cacher la scrollbar */
-.moments-strip .polaroid {
-  box-shadow: 0 10px 24px -12px rgb(22 41 74 / .3);
+  margin: 0 20px; /* ⭐ Même marge que le thumb */
 }
