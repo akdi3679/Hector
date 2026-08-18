@@ -8,7 +8,7 @@ export default function MediaStrip({ folder, tall = false }: { folder: string; t
   const [next, setNext] = useState<{ cursor: string } | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const load = async (cursor?: string) => {
+const load = useCallback(async (cursor?: string) => {
     if (loading) return;
     setLoading(true);
     try {
@@ -27,10 +27,10 @@ export default function MediaStrip({ folder, tall = false }: { folder: string; t
     }
   };
 
-  useEffect(() => {
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [folder]);
+
+useEffect(() => {
+  load();
+}, [folder, load]);
 
   const h = tall ? 'h-[420px]' : 'h-[320px]';
 

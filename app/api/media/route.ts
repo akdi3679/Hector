@@ -1,4 +1,11 @@
 import { NextResponse } from 'next/server';
+interface CloudinaryResource {
+  public_id: string;
+  secure_url: string;
+  resource_type: 'image' | 'video' | 'raw';
+  format: string;
+  created_at: string;
+}
 
 export const revalidate = 600;
 const CLOUD = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
@@ -90,14 +97,16 @@ export async function GET(req: Request) {
 
   const result = await searchFolder(folder, cursor);
 
-  const items = (result.resources ?? []).map((r: any) => ({
-    id: r.public_id,
-    url: r.secure_url,
-    type: r.resource_type === 'video' ? 'video' : (r.format === 'gif' ? 'gif' : 'image'),
-    created: r.created_at,
-  }));
-
+  
+const items = (result.resources ?? []).map((r: CloudinaryResource) => ({
+  id: r.public_id,
+  url: r.secure_url,
+  type: r.resource_type === 'video' ? 'video' : (r.format === 'gif' ? 'gif' : 'image'),
+  created: r.created_at,
+}));
   const next = result.next_cursor ? { cursor: result.next_cursor } : null;
 
   return NextResponse.json({ items, next });
 }
+
+
