@@ -59,11 +59,11 @@ useEffect(() => {
               />
             ) : (
               <img
-                src={m.url}
-                alt=""
-                loading="lazy"
-                className="h-full w-full object-cover"
-              />
+  src={m.url}
+  alt={`${m.type === 'video' ? 'Vidéo' : 'Photo'} — La Virée d'Hector, ${folder}`}
+  loading="lazy"
+  className="h-full w-full object-cover"
+/>
             )}
           </div>
         </div>

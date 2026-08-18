@@ -1,4 +1,6 @@
 // app/layout.tsx
+"use client";
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { SiteDataProvider } from '@/lib/site-data';
@@ -123,17 +125,33 @@ const jsonLd = {
     'road-trip',
   ],
 };
-
+// app/layout.tsx
+const videosSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  itemListElement: [
+    {
+      '@type': 'VideoObject',
+      name: 'La Virée d\'Hector — Chaîne principale',
+      description: 'Partenariats, produits nomades, tech et vie à bord d\'Hector.',
+      url: 'https://www.youtube.com/@lavireedhector',
+      thumbnailUrl: 'https://lavireedhector.fr/og-image.jpg',
+      uploadDate: '2021-01-01',
+      author: {
+        '@type': 'Organization',
+        name: 'La Virée d\'Hector',
+      },
+    },
+  ],
+};
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className={`${fraunces.variable} ${archivo.variable} ${caveat.variable}`}>
-      <body className="bg-paper font-sans text-ink antialiased">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-        <SiteDataProvider>{children}</SiteDataProvider>
-      </body>
+      <body>
+  <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+  <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(videosSchema) }} />
+  <SiteDataProvider>{children}</SiteDataProvider>
+</body>
     </html>
   );
 }
