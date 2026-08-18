@@ -131,7 +131,7 @@ export const youtubeChannels: YoutubeChannel[] = [
   },
   {
     id: 'travel',
-    handle: '@LaviréedHectorTravel',
+     handle: '@LavireedHectorTravel',
     name: 'La Virée d’Hector Travel',
     url: 'https://www.youtube.com/@Lavir%C3%A9edHectorTravel',
     positioning: 'Voyages & destinations',
