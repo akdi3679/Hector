@@ -457,7 +457,7 @@ export function ReviewsSection() {
 }
 export function MomentsSection() {
   return (
-    <section className="py-20 md:py-28">
+    <section className="py-20 md:py-28">  {/* ⭐ Pas de overflow-hidden */}
       <div className="mx-auto w-full max-w-[1280px] px-5 md:px-8">
         <Head hand="ce qu'on n'oubliera jamais" title="Les moments inoubliables." sub="Photos, vidéos, gifs — comme on feuillette un album." />
       </div>
@@ -468,7 +468,7 @@ export function MomentsSection() {
 
 export function GallerySection() {
   return (
-    <section id="galerie" className="scroll-mt-24 py-20 md:py-28">
+    <section id="galerie" className="scroll-mt-24 py-20 md:py-28">  {/* ⭐ Pas de overflow-hidden */}
       <div className="mx-auto w-full max-w-[1280px] px-5 md:px-8">
         <Head hand="la route en images" title="La galerie." sub="Les 20 derniers médias — chargez plus si vous voulez." />
       </div>

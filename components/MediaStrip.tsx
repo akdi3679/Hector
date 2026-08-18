@@ -54,23 +54,26 @@ export default function MediaStrip({ folder, tall = false }: { folder: string; t
         ))}
 
         {/* ⭐ Bouton petit et rond */}
-        {next && (
-          <button
-            type="button"
-            onClick={() => load(next.cursor)}
-            disabled={loading}
-            className="flex h-12 w-12 shrink-0 snap-center items-center justify-center rounded-full border-2 border-ink/20 bg-white text-ink transition-all duration-300 hover:border-sunset hover:text-sunset disabled:opacity-50"
-            aria-label="Charger plus de médias"
-          >
-            {loading ? (
-              <span className="h-5 w-5 animate-spin rounded-full border-2 border-sunset border-t-transparent"></span>
-            ) : (
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v12m6-6H6" />
-              </svg>
-            )}
-          </button>
-        )}
+       {next && (
+  <button
+    type="button"
+    onClick={() => load(next.cursor)}
+    disabled={loading}
+    className="flex h-[240px] w-[120px] shrink-0 snap-center flex-col items-center justify-center gap-3 rounded-xl border-2 border-ink/20 bg-transparent text-ink transition-all duration-300 hover:-translate-y-1 hover:border-sunset hover:text-sunset disabled:opacity-50"
+    aria-label="Charger plus de médias"
+  >
+    {loading ? (
+      <span className="h-6 w-6 animate-spin rounded-full border-2 border-sunset border-t-transparent"></span>
+    ) : (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v12m6-6H6" />
+      </svg>
+    )}
+    <span className="text-xs font-bold uppercase tracking-wider">
+      {loading ? 'Chargement' : 'Voir plus'}
+    </span>
+  </button>
+)}
       </div>
 
       <p className="hand mt-2 text-center text-2xl text-mist">faites défiler →</p>
