@@ -4,7 +4,7 @@ export const revalidate = 3600;
 
 const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || '';
 const FOLDER = process.env.CLOUDINARY_MEDIA_KIT_FOLDER || '';
-const FILENAME = process.env.CLOUDINARY_MEDIA_KIT_FILENAME ;
+const FILENAME = process.env.CLOUDINARY_MEDIA_KIT_FILENAME || 'Media-Kit.pdf';
 const DOWNLOAD_NAME = 'La-Viree-d-Hector-Media-Kit.pdf';
 
 // ⭐ Validation du filename (pas de caractères spéciaux)
