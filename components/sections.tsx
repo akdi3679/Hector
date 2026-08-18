@@ -2,6 +2,8 @@
 import { useEffect, useRef, useState } from 'react';
 import Reveal from './Reveal';
 import YouTubeDropdown from './YouTubeDropdown';
+import MediaStrip from './MediaStrip';
+import { useSiteData } from '@/lib/site-data';
 import { Globe, Truck, BatteryCharging, Camera, Coffee, Cpu, ChevronLeft } from 'lucide-react';
 import { YoutubeIcon, InstagramIcon, FacebookIcon, TiktokIcon } from './SocialIcons';
 import {
@@ -38,10 +40,10 @@ export function Hero() {
             Un camion aménagé nommé Hector, trois chaînes YouTube, et le monde comme jardin. Montez à bord — ou travaillons ensemble.
           </p>
           <div className="mt-10 flex flex-wrap gap-4">
-           <div className="mt-10 flex flex-wrap gap-4">
-  <YouTubeDropdown variant="red" />
-  <a href="#marques" className="btn btn-ink">Espace marques</a>
-</div>
+                     <div className="mt-10 flex flex-wrap gap-4">
+            <YouTubeDropdown variant="red" />
+            <a href="#marques" className="btn btn-ink">Espace marques</a>
+          </div>
  </div>
         </div>
         <div className="relative md:col-span-5">
@@ -84,7 +86,8 @@ function CountValue({ target, suffix = '', decimals = 0, started }: { target: nu
 export function StatsStrip() {
   const ref = useRef<HTMLElement>(null);
   const [started, setStarted] = useState(false);
-  const [subs, setSubs] = useState<number | null>(null);
+  const { channels } = useSiteData();
+  const ytTotal = channels.reduce((a: number, c: any) => a + (c.subscribers ?? 0), 0);
 
   useEffect(() => {
     const el = ref.current;
@@ -93,7 +96,7 @@ export function StatsStrip() {
       ([e]) => {
         if (e.isIntersecting) {
           setStarted(true);
-          io.disconnect(); // compte une seule fois
+          io.disconnect();
         }
       },
       { threshold: 0.2 }
@@ -102,36 +105,26 @@ export function StatsStrip() {
     return () => io.disconnect();
   }, []);
 
-useEffect(() => {
-  fetch('/api/youtube').then((r) => r.json()).then((d) => {
-    if (!d?.live) return;
-    const total = d.channels.reduce((a: number, c: { subscribers: number | null }) => a + (c.subscribers ?? 0), 0);
-    if (total > 0) setSubs(total);
-  }).catch(() => {});
-}, []);
-const { channels } = useSiteData();
-const ytTotal = channels.reduce((a, c) => a + (c.subscribers ?? 0), 0);
-
   const items = [
-  { href: brandData.youtube.url, icon: <YoutubeIcon className="h-5 w-5" />, value: <CountValue target={3} started={started} />, label: 'chaînes YouTube' },
-  { href: brandData.youtube.url, icon: <YoutubeIcon className="h-5 w-5" />, value: ytTotal ? <CountValue target={ytTotal} started={started} /> : <span>—</span>, label: 'abonnés YouTube' },
-  { href: brandData.instagram.url, icon: <InstagramIcon className="h-5 w-5" />, value: <CountValue target={11.6} suffix="K" decimals={1} started={started} />, label: 'abonnés Instagram' },
-  { href: brandData.facebook.url, icon: <FacebookIcon className="h-5 w-5" />, value: <CountValue target={7.5} suffix="K" decimals={1} started={started} />, label: 'abonnés Facebook' },
-  { href: brandData.tiktok.url, icon: <TiktokIcon className="h-5 w-5" />, value: <span>∞</span>, label: 'TikTok' },
-];
+    { href: brandData.youtube.url, icon: <YoutubeIcon className="h-5 w-5" />, value: <CountValue target={3} started={started} />, label: 'chaînes YouTube' },
+    { href: brandData.youtube.url, icon: <YoutubeIcon className="h-5 w-5" />, value: ytTotal ? <CountValue target={ytTotal} started={started} /> : <span>—</span>, label: 'abonnés YouTube' },
+    { href: brandData.instagram.url, icon: <InstagramIcon className="h-5 w-5" />, value: <CountValue target={11.6} suffix="K" decimals={1} started={started} />, label: 'abonnés Instagram' },
+    { href: brandData.facebook.url, icon: <FacebookIcon className="h-5 w-5" />, value: <CountValue target={7.5} suffix="K" decimals={1} started={started} />, label: 'abonnés Facebook' },
+    { href: brandData.tiktok.url, icon: <TiktokIcon className="h-5 w-5" />, value: <span>∞</span>, label: 'TikTok' },
+  ];
 
   return (
     <section ref={ref} className="bg-ink py-12 text-paper">
       <div className="mx-auto grid w-full max-w-[1280px] grid-cols-2 gap-8 px-5 sm:grid-cols-5 md:px-8">
-       {items.map((s, i) => (
-  <Reveal key={s.label} delay={i * 80} className="text-center">
-    <a href={s.href} target="_blank" rel="noopener noreferrer" className="group block" aria-label={s.label}>
-      <span className="mx-auto mb-3 grid h-11 w-11 place-items-center rounded-full border border-sun/40 text-sun transition-transform group-hover:scale-110">{s.icon}</span>
-      <p className="font-display text-3xl font-semibold text-sun">{s.value}</p>
-      <p className="label mt-2 text-paper/70">{s.label}</p>
-    </a>
-  </Reveal>
-))}
+        {items.map((s, i: number) => (
+          <Reveal key={s.label} delay={i * 80} className="text-center">
+            <a href={s.href} target="_blank" rel="noopener noreferrer" className="group block" aria-label={s.label}>
+              <span className="mx-auto mb-3 grid h-11 w-11 place-items-center rounded-full border border-sun/40 text-sun transition-transform group-hover:scale-110">{s.icon}</span>
+              <p className="font-display text-3xl font-semibold text-sun">{s.value}</p>
+              <p className="label mt-2 text-paper/70">{s.label}</p>
+            </a>
+          </Reveal>
+        ))}
       </div>
     </section>
   );
@@ -142,7 +135,7 @@ export function VideosSection() {
     <section id="videos" className="mx-auto w-full max-w-[1280px] scroll-mt-24 px-5 py-20 md:px-8 md:py-28">
       <Head hand="cliquez, ça se regarde" title="Nos dernières vidéos." sub="Les 4 dernières vidéos publiées sur nos chaînes, mises à jour automatiquement." />
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-        {videos.map((v, i) => (
+        {videos.map((v: any, i: number) => (
           <Reveal key={v.title} delay={(i % 4) * 90}>
             <a href={v.videoId ? `https://www.youtube.com/watch?v=${v.videoId}` : v.channelUrl} target="_blank" rel="noopener noreferrer"
                className={`group block polaroid ${i % 2 ? 'rotate-1' : '-rotate-1'} transition-transform duration-300 hover:rotate-0`}>
@@ -373,7 +366,7 @@ export function ReviewsSection() {
     <section className="mx-auto w-full max-w-[1280px] px-5 py-20 md:px-8 md:py-28">
       <Head hand="ce qui nous fait avancer" title="Vos messages nous portent." sub="De vrais commentaires laissés sous nos vidéos — cliquez pour voir la vidéo." />
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-        {reviews.map((r, i) => {
+        {reviews.map((r: any, i: number) => {
           const inner = (
             <figure className={`polaroid h-full ${i % 2 ? 'rotate-1' : '-rotate-1'} p-6`}>
               <blockquote className="hand text-2xl leading-snug">« {r.text} »</blockquote>
@@ -430,10 +423,10 @@ export function FinalCTA() {
         <p className="hand text-3xl">montez à bord</p>
         <h2 className="mx-auto mt-2 max-w-3xl font-display text-5xl font-semibold md:text-7xl">{brandData.tagline}</h2>
         <div className="mt-10 flex flex-wrap justify-center gap-4">
-        <div className="mt-10 flex flex-wrap justify-center gap-4">
-  <YouTubeDropdown variant="red" />
-  <a href={brandData.instagram.url} target="_blank" rel="noopener noreferrer" className="btn btn-ink">Suivre la virée</a>
-</div>
+                <div className="mt-10 flex flex-wrap justify-center gap-4">
+          <YouTubeDropdown variant="red" />
+          <a href={brandData.instagram.url} target="_blank" rel="noopener noreferrer" className="btn btn-ink">Suivre la virée</a>
+        </div>
  </div>
       </Reveal>
     </section>

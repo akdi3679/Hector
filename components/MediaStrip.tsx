@@ -1,7 +1,11 @@
 "use client";
 import { useEffect, useState } from 'react';
 
-interface Item { id: string; url: string; type: 'image' | 'gif' | 'video'; }
+interface Item {
+  id: string;
+  url: string;
+  type: 'image' | 'gif' | 'video';
+}
 
 export default function MediaStrip({ folder, tall = false }: { folder: string; tall?: boolean }) {
   const [items, setItems] = useState<Item[]>([]);
@@ -11,14 +15,23 @@ export default function MediaStrip({ folder, tall = false }: { folder: string; t
   const load = async (cursor?: { ci: string; cv: string }) => {
     setLoading(true);
     const p = new URLSearchParams({ folder });
-    if (cursor) { p.set('ci', cursor.ci); p.set('cv', cursor.cv); }
-    const d = await (await fetch(`/api/media?${p}`)).json();
-    setItems((prev) => [...prev, ...d.items]);
-    setNext(d.next);
+    if (cursor) {
+      p.set('ci', cursor.ci);
+      p.set('cv', cursor.cv);
+    }
+    try {
+      const d = await (await fetch(`/api/media?${p}`)).json();
+      setItems((prev) => [...prev, ...d.items]);
+      setNext(d.next);
+    } catch (err) {
+      console.error('Media load failed:', err);
+    }
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [folder]);
+  useEffect(() => {
+    load();
+  }, [folder]);
 
   const h = tall ? 'h-[420px]' : 'h-[320px]';
 
