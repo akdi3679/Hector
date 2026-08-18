@@ -12,9 +12,6 @@ import {
   socialStats, brandsAudience,
 } from '@/data/viree';
 import type { LiveReview , LiveVideo , LiveChannel  } from '@/lib/types';
-
-import { socialStats , brandsAudience  } from '@/data/viree';
-
 import type { YoutubeChannel } from '@/data/viree';
 function Head({ hand, title, sub }: { hand: string; title: string; sub?: string }) {
   return (
