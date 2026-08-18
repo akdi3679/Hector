@@ -461,7 +461,7 @@ export function MomentsSection() {
       <div className="mx-auto w-full max-w-[1280px] px-5 md:px-8">
         <Head hand="ce qu'on n'oubliera jamais" title="Les moments inoubliables." sub="Photos, vidéos, gifs — comme on feuillette un album." />
       </div>
-      <Reveal><MediaStrip folder="hector/moments" tall /></Reveal>
+      <Reveal><MediaStrip folder="moments" tall /></Reveal>
     </section>
   );
 }
@@ -472,7 +472,7 @@ export function GallerySection() {
       <div className="mx-auto w-full max-w-[1280px] px-5 md:px-8">
         <Head hand="la route en images" title="La galerie." sub="Les 20 derniers médias — chargez plus si vous voulez." />
       </div>
-      <Reveal><MediaStrip folder="hector/galerie" /></Reveal>
+      <Reveal><MediaStrip folder="galerie" /></Reveal>
     </section>
   );
 }
