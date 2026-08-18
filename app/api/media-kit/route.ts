@@ -12,8 +12,10 @@ export async function GET() {
   }
 
   // Construit l'URL : si FOLDER est vide, pas de folder dans l'URL
-  const pdfUrl = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${FILENAME}`;
-
+ /* const pdfUrl = FOLDER
+    ? `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${FOLDER}/${FILENAME}`
+    : `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${FILENAME}`;*/
+  const pdfUrl =  `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${FILENAME}`;
   console.log('[media-kit] Tentative de fetch:', pdfUrl);
 
   try {

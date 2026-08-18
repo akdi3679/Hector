@@ -20,5 +20,5 @@ export const brandsAudience = [
   { value: '3', label: 'chaînes YouTube' },
   { value: '11,6K', label: 'Instagram' },
   { value: '7,5K', label: 'Facebook' },
-  { value: '∞', label: 'TikTok' },
+  { value: '+3.5K', label: 'TikTok' },
 ];
