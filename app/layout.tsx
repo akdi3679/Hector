@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { SiteDataProvider } from '@/lib/site-data';
+
 import { Fraunces, Archivo, Caveat } from 'next/font/google';
 const fraunces = Fraunces({ weight: ['400','500','600','700'], style: ['normal','italic'], subsets: ['latin'], variable: '--font-fraunces', display: 'swap' });
 const archivo = Archivo({ weight: ['300','400','500','600','700'], subsets: ['latin'], variable: '--font-archivo', display: 'swap' });
@@ -41,7 +43,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr" className={`${fraunces.variable} ${archivo.variable} ${caveat.variable}`}>
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-        {children}
+         <SiteDataProvider>{children}</SiteDataProvider>
+
       </body>
     </html>
   );

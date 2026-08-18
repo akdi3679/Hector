@@ -5,6 +5,7 @@ import { brandData, navigation, youtubeChannels, mediaKitUrl } from '@/data/vire
 import type { YoutubeChannel } from '@/data/viree';
 export default function Footer() {
   const [on, setOn] = useState(false);
+const [ytOpen, setYtOpen] = useState(false);
 
  const toggle = (e: MouseEvent) => {
   if ((e.target as HTMLElement).closest('a, button, input')) return;
@@ -26,10 +27,7 @@ export default function Footer() {
           className={`absolute inset-0 h-full w-full object-contain object-center transition-opacity duration-700 md:object-cover ${on ? 'opacity-100' : 'opacity-0'}`}
         />
         {/* halo des phares */}
-        <div
-          className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${on ? 'opacity-100' : 'opacity-0'}`}
-          style={{ background: 'radial-gradient(ellipse 45% 30% at 50% 60%, rgba(242,179,61,0.2), transparent 70%)' }}
-        />
+       
         {/* dégradé : lisse en haut, fond dans l'encre en bas */}
         <div
           className="pointer-events-none absolute inset-0"
@@ -53,15 +51,19 @@ export default function Footer() {
           {navigation.map((n) => <a key={n.href} href={n.href} className="w-fit text-sm font-semibold text-paper/75 hover:text-sun">{n.label}</a>)}
         </nav>
         <div className="flex flex-col items-start gap-3 text-sm font-semibold">
-        {youtubeChannels.map((c: YoutubeChannel) => (
-  <a key={c.id} href={c.url} target="_blank" rel="noopener noreferrer" className="hover:text-sun">
-    {c.name}
-  </a>
-))}
-          <a href={brandData.tiktok.url} target="_blank" rel="noopener noreferrer" className="hover:text-sun">TikTok {brandData.tiktok.handle}</a>
-          <a href={brandData.instagram.url} target="_blank" rel="noopener noreferrer" className="hover:text-sun">Instagram {brandData.instagram.handle}</a>
-          <a href={brandData.facebook.url} target="_blank" rel="noopener noreferrer" className="hover:text-sun">Facebook</a>
-        </div>
+  <button type="button" onClick={() => setYtOpen((o) => !o)} className="hover:text-sun" aria-expanded={ytOpen}>
+    YouTube {ytOpen ? '−' : '+'}
+  </button>
+  {ytOpen && youtubeChannels.map((c) => (
+    <a key={c.id} href={c.url} target="_blank" rel="noopener noreferrer" className="pl-3 text-paper/60 hover:text-sun">
+      {c.name}
+    </a>
+  ))}
+  <a href={brandData.tiktok.url} target="_blank" rel="noopener noreferrer" className="hover:text-sun">TikTok {brandData.tiktok.handle}</a>
+  <a href={brandData.instagram.url} target="_blank" rel="noopener noreferrer" className="hover:text-sun">Instagram {brandData.instagram.handle}</a>
+  <a href={brandData.facebook.url} target="_blank" rel="noopener noreferrer" className="hover:text-sun">Facebook</a>
+  <a href={mediaKitUrl} download="La-Viree-d-Hector-Media-Kit.pdf" className="hover:text-sun">Media kit (PDF)</a>
+</div>
       </div>
 
       <p className="relative z-10 border-t border-paper/10 py-6 text-center text-xs text-paper/50">

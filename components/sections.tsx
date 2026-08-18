@@ -109,67 +109,52 @@ useEffect(() => {
     if (total > 0) setSubs(total);
   }).catch(() => {});
 }, []);
+const { channels } = useSiteData();
+const ytTotal = channels.reduce((a, c) => a + (c.subscribers ?? 0), 0);
 
   const items = [
-  { icon: <YoutubeIcon className="h-5 w-5" />, value: <CountValue target={3} started={started} />, label: 'chaînes YouTube' },
- { icon: <YoutubeIcon className="h-5 w-5" />,
-  value: subs ? <CountValue target={subs} started={started} /> : <span>—</span>,
-  label: 'abonnés YouTube cumulés' }
-  ,
-  { icon: <InstagramIcon className="h-5 w-5" />, value: <CountValue target={11.6} suffix="K" decimals={1} started={started} />, label: 'abonnés Instagram' },
-  { icon: <FacebookIcon className="h-5 w-5" />, value: <CountValue target={7.5} suffix="K" decimals={1} started={started} />, label: 'abonnés Facebook' },
-  { icon: <Globe className="h-5 w-5" />, value: <span>monde</span>, label: 'notre terrain de jeu' },
+  { href: brandData.youtube.url, icon: <YoutubeIcon className="h-5 w-5" />, value: <CountValue target={3} started={started} />, label: 'chaînes YouTube' },
+  { href: brandData.youtube.url, icon: <YoutubeIcon className="h-5 w-5" />, value: ytTotal ? <CountValue target={ytTotal} started={started} /> : <span>—</span>, label: 'abonnés YouTube' },
+  { href: brandData.instagram.url, icon: <InstagramIcon className="h-5 w-5" />, value: <CountValue target={11.6} suffix="K" decimals={1} started={started} />, label: 'abonnés Instagram' },
+  { href: brandData.facebook.url, icon: <FacebookIcon className="h-5 w-5" />, value: <CountValue target={7.5} suffix="K" decimals={1} started={started} />, label: 'abonnés Facebook' },
+  { href: brandData.tiktok.url, icon: <TiktokIcon className="h-5 w-5" />, value: <span>∞</span>, label: 'TikTok' },
 ];
 
   return (
     <section ref={ref} className="bg-ink py-12 text-paper">
       <div className="mx-auto grid w-full max-w-[1280px] grid-cols-2 gap-8 px-5 sm:grid-cols-5 md:px-8">
-        {items.map((s, i) => (
-          <Reveal key={s.label} delay={i * 80} className="text-center">
-            <span className="mx-auto mb-3 grid h-11 w-11 place-items-center rounded-full border border-sun/40 text-sun">{s.icon}</span>
-            <p className="font-display text-3xl font-semibold text-sun">{s.value}</p>
-            <p className="label mt-2 text-paper/70">{s.label}</p>
-          </Reveal>
-        ))}
+       {items.map((s, i) => (
+  <Reveal key={s.label} delay={i * 80} className="text-center">
+    <a href={s.href} target="_blank" rel="noopener noreferrer" className="group block" aria-label={s.label}>
+      <span className="mx-auto mb-3 grid h-11 w-11 place-items-center rounded-full border border-sun/40 text-sun transition-transform group-hover:scale-110">{s.icon}</span>
+      <p className="font-display text-3xl font-semibold text-sun">{s.value}</p>
+      <p className="label mt-2 text-paper/70">{s.label}</p>
+    </a>
+  </Reveal>
+))}
       </div>
     </section>
   );
 }
 export function VideosSection() {
-  const [live, setLive] = useState<{ title: string; url: string; image: string; tag: string }[] | null>(null);
-
-  useEffect(() => {
-    fetch('/api/youtube').then((r) => r.json()).then((d) => {
-      if (!d?.live) return;
-      const merged = d.channels
-        .flatMap((c: any) => (c.latest ?? []).map((v: any) => ({
-          title: v.title,
-          url: `https://www.youtube.com/watch?v=${v.videoId}`,
-          image: v.thumb,
-          tag: c.name,
-        })))
-        .slice(0, 4);
-      if (merged.length) setLive(merged);
-    }).catch(() => {});
-  }, []);
-
-  const list = live ?? fallbackLatestVideos;
-
+  const { videos } = useSiteData();
   return (
     <section id="videos" className="mx-auto w-full max-w-[1280px] scroll-mt-24 px-5 py-20 md:px-8 md:py-28">
-      <Head hand="cliquez, ça se regarde" title="Nos dernières vidéos." sub="Mises à jour automatiquement depuis nos trois chaînes YouTube." />
+      <Head hand="cliquez, ça se regarde" title="Nos dernières vidéos." sub="Les 4 dernières vidéos publiées sur nos chaînes, mises à jour automatiquement." />
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-        {list.map((v, i) => (
+        {videos.map((v, i) => (
           <Reveal key={v.title} delay={(i % 4) * 90}>
-            <a href={v.url} target="_blank" rel="noopener noreferrer" className={`group block polaroid ${i % 2 ? 'rotate-1' : '-rotate-1'} transition-transform duration-300 hover:rotate-0`}>
+            <a href={v.videoId ? `https://www.youtube.com/watch?v=${v.videoId}` : v.channelUrl} target="_blank" rel="noopener noreferrer"
+               className={`group block polaroid ${i % 2 ? 'rotate-1' : '-rotate-1'} transition-transform duration-300 hover:rotate-0`}>
               <div className="card-img relative aspect-[4/3] overflow-hidden">
-                <img src={v.image} alt={v.title} loading="lazy" className="h-full w-full object-cover" />
+                <img src={v.thumb} alt={v.title} loading="lazy" className="h-full w-full object-cover" />
                 <span className="absolute inset-0 grid place-items-center">
                   <span className="play-pulse grid h-12 w-12 place-items-center rounded-full bg-red text-paper shadow-lg transition-transform duration-300 group-hover:scale-110">▶</span>
                 </span>
               </div>
-              <p className="label mt-4 text-sunset">{v.tag}</p>
+              <p className="label mt-4 text-sunset">{v.channel}{v.publishedAt && ` · ${new Date(v.publishedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}`}</p>
               <h3 className="mt-2 font-display text-xl font-semibold leading-snug group-hover:text-sunset">{v.title}</h3>
+              {v.description && <p className="mt-2 text-sm text-mist line-clamp-2">{v.description}</p>}
             </a>
           </Reveal>
         ))}
@@ -383,23 +368,30 @@ export function BrandsSection() {
 }
 
 export function ReviewsSection() {
-  const [live, setLive] = useState<{ text: string; from: string }[] | null>(null);
-  useEffect(() => {
-    fetch('/api/youtube').then((r) => r.json()).then((d) => d?.reviews?.length && setLive(d.reviews)).catch(() => {});
-  }, []);
-const list = live ?? reviews;
+  const { reviews } = useSiteData();
   return (
     <section className="mx-auto w-full max-w-[1280px] px-5 py-20 md:px-8 md:py-28">
-      <Head hand="ce qui nous fait avancer" title="Vos messages nous portent." sub="Quelques mots reçus en DM et en commentaires — la raison pour laquelle on ne lâche rien." />
+      <Head hand="ce qui nous fait avancer" title="Vos messages nous portent." sub="De vrais commentaires laissés sous nos vidéos — cliquez pour voir la vidéo." />
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-        {list.map((r, i) => (
-          <Reveal key={i} delay={(i % 4) * 90}>
-            <figure className={`polaroid ${i % 2 ? 'rotate-1' : '-rotate-1'} p-6`}>
+        {reviews.map((r, i) => {
+          const inner = (
+            <figure className={`polaroid h-full ${i % 2 ? 'rotate-1' : '-rotate-1'} p-6`}>
               <blockquote className="hand text-2xl leading-snug">« {r.text} »</blockquote>
-              <figcaption className="label mt-4 text-mist">{r.from}</figcaption>
+              <figcaption className="label mt-4 flex items-center justify-between text-mist">
+                <span>{r.author}</span>
+                {r.likes > 0 && <span className="text-sunset">♥ {r.likes}</span>}
+              </figcaption>
+              {r.videoTitle && <p className="mt-2 truncate text-xs text-mist/70">sur : {r.videoTitle}</p>}
             </figure>
-          </Reveal>
-        ))}
+          );
+          return (
+            <Reveal key={i} delay={(i % 4) * 90}>
+              {r.videoId
+                ? <a href={`https://www.youtube.com/watch?v=${r.videoId}`} target="_blank" rel="noopener noreferrer" className="block transition-transform hover:-translate-y-1">{inner}</a>
+                : inner}
+            </Reveal>
+          );
+        })}
       </div>
     </section>
   );
@@ -410,57 +402,20 @@ export function MomentsSection() {
   return (
     <section className="overflow-hidden py-20 md:py-28">
       <div className="mx-auto w-full max-w-[1280px] px-5 md:px-8">
-        <Head
-          hand="ce qu’on n’oubliera jamais"
-          title="Les moments inoubliables."
-          sub="Il y a des instants qui justifient tout le reste. Faites défiler — comme on feuillette un album."
-        />
+        <Head hand="ce qu'on n'oubliera jamais" title="Les moments inoubliables." sub="Photos, vidéos, gifs — comme on feuillette un album." />
       </div>
-      <Reveal>
-        <div className="moments-strip flex snap-x snap-mandatory gap-6 overflow-x-auto px-5 pb-6 md:px-[max(2rem,calc((100vw-1280px)/2))]">
-          {moments.map((m, i) => (
-            <figure key={m.caption} className={`polaroid breathe w-[260px] shrink-0 snap-center md:w-[320px] ${i % 2 ? 'rotate-1' : '-rotate-1'}`}>
-              <div className="card-img aspect-[4/5] overflow-hidden">
-                <img src={m.image} alt={m.caption} loading="lazy" className="h-full w-full object-cover" />
-              </div>
-              <figcaption className="flex items-baseline justify-between gap-3 pt-3">
-                <span className="hand text-2xl leading-none">{m.caption}</span>
-                <span className="stamp shrink-0 !px-3 !py-1.5 !text-[9px]">{m.emotion}</span>
-              </figcaption>
-            </figure>
-          ))}
-          {/* la dernière carte parle aux marques */}
-          <div className="flex w-[260px] shrink-0 snap-center items-center justify-center md:w-[320px]">
-            <p className="hand text-center text-3xl text-sunset">les prochains se vivront peut-être avec votre marque.</p>
-          </div>
-        </div>
-      </Reveal>
-      <p className="hand mt-2 text-center text-2xl text-mist">faites défiler →</p>
+      <Reveal><MediaStrip folder="hector/moments" tall /></Reveal>
     </section>
   );
 }
+
 export function GallerySection() {
-  const [idx, setIdx] = useState<number | null>(null);
   return (
-    <section id="galerie" className="mx-auto w-full max-w-[1280px] scroll-mt-24 px-5 py-20 md:px-8 md:py-28">
-      <Head hand="la route en images" title="La galerie." sub="Cliquez sur une photo pour la voir en grand." />
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-        {gallery.map((g, i) => (
-          <Reveal key={g.src} delay={(i % 3) * 80}>
-            <button onClick={() => setIdx(i)} className="card-img group block aspect-square w-full overflow-hidden rounded-xl border-2 border-ink/10 focus-visible:outline-2 focus-visible:outline-sunset">
-              <img src={g.src} alt={g.alt} loading="lazy" className="h-full w-full object-cover" />
-            </button>
-          </Reveal>
-        ))}
+    <section id="galerie" className="scroll-mt-24 overflow-hidden py-20 md:py-28">
+      <div className="mx-auto w-full max-w-[1280px] px-5 md:px-8">
+        <Head hand="la route en images" title="La galerie." sub="Les 20 derniers médias — chargez plus si vous voulez." />
       </div>
-      {idx !== null && (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-ink/95 p-6" role="dialog" aria-modal="true" onClick={() => setIdx(null)}>
-<img src={gallery[idx].src} alt={gallery[idx].alt} className="lightbox-img max-h-[85vh] max-w-full rounded-xl" onClick={(e) => e.stopPropagation()} />
-          <button className="btn btn-ghost !border-paper/40 !text-paper absolute left-4 top-1/2 -translate-y-1/2" onClick={(e) => { e.stopPropagation(); setIdx((idx + gallery.length - 1) % gallery.length); }}>←</button>
-          <button className="btn btn-ghost !border-paper/40 !text-paper absolute right-4 top-1/2 -translate-y-1/2" onClick={(e) => { e.stopPropagation(); setIdx((idx + 1) % gallery.length); }}>→</button>
-          <button className="btn btn-red absolute right-4 top-4" onClick={() => setIdx(null)}>Fermer</button>
-        </div>
-      )}
+      <Reveal><MediaStrip folder="hector/galerie" /></Reveal>
     </section>
   );
 }
