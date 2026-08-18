@@ -1,5 +1,6 @@
 export const cloudinaryConfig = {
-  cloudName: 'du0frvxjo',
+  // Utilise la variable d'environnement avec fallback
+  cloudName: process.env.CLOUDINARY_CLOUD_NAME ,
   folders: {
     galerie: 'galerie',
     moments: 'moments',
@@ -7,6 +8,5 @@ export const cloudinaryConfig = {
   },
 };
 
-export const mediaKitUrl = `https://res.cloudinary.com/${cloudinaryConfig.cloudName}/raw/upload/v1766226030/${cloudinaryConfig.folders.mediaKit}/Media-Kit.pdf`;
-
-// URLs pour galerie et moments seront chargées dynamiquement via /api/media
+// URL avec fl_attachment → force le téléchargement silencieux
+export const mediaKitUrl = `https://res.cloudinary.com/${cloudinaryConfig.cloudName}/raw/upload/fl_attachment:La-Viree-d-Hector-Media-Kit/${cloudinaryConfig.folders.mediaKit}/Media-Kit.pdf`;
