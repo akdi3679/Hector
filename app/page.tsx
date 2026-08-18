@@ -1,3 +1,4 @@
+"use client"; 
 import Header from '@/components/Header';
 import MobileBar from '@/components/MobileBar';
 import Footer from '@/components/Footer';
