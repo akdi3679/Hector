@@ -5,13 +5,11 @@ const CLOUD = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 const KEY = process.env.CLOUDINARY_API_KEY;
 const SECRET = process.env.CLOUDINARY_API_SECRET;
 
-// ⭐ Whitelist étendue (accepte les 2 formes)
 const ALLOWED_FOLDERS = new Set([
   'hector/galerie', 'hector/moments',
   'galerie', 'moments',
 ]);
 
-// ⭐ Rate limiting
 const rateLimitMap = new Map<string, { count: number; reset: number }>();
 function rateLimit(ip: string): boolean {
   const now = Date.now();
@@ -25,32 +23,38 @@ function rateLimit(ip: string): boolean {
   return true;
 }
 
-/**
- * Utilise Cloudinary SEARCH API (pas la liste par prefix)
- * Fonctionne avec dynamic folder mode ✅
- */
 async function searchFolder(folder: string, cursor?: string) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8000);
 
   try {
-    // Expression : folder=galerie (marche en dynamic folder mode)
-    const expression = `folder=${folder}`;
-    const p = new URLSearchParams({
+    // ⭐ Syntaxe correcte : folder:value (avec deux-points + guillemets pour valeur)
+    // resource_type:image OR resource_type:video pour filtrer les deux types
+    const expression = `folder:"${folder}" AND (resource_type:image OR resource_type:video)`;
+    
+    const body = JSON.stringify({
       expression,
-      max_results: '20',
-      sort_by: 'created_at:desc',
+      max_results: 20,
+      sort_by: [{ created_at: 'desc' }],
+      ...(cursor ? { next_cursor: cursor } : {}),
     });
-    if (cursor) p.set('next_cursor', cursor);
 
-    const r = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/resources/search?${p}`, {
-      headers: { Authorization: `Basic ${btoa(`${KEY}:${SECRET}`)}` },
+    // ⭐ Search API utilise POST, pas GET
+    const r = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/resources/search`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${btoa(`${KEY}:${SECRET}`)}`,
+        'Content-Type': 'application/json',
+      },
+      body,
       signal: controller.signal,
     });
+    
     clearTimeout(timeout);
     
     if (!r.ok) {
-      console.error('[media] Search failed:', r.status);
+      const errText = await r.text().catch(() => '');
+      console.error(`[media] Search failed: ${r.status}`, errText);
       return { resources: [], next_cursor: undefined };
     }
     return r.json();
@@ -62,7 +66,6 @@ async function searchFolder(folder: string, cursor?: string) {
 }
 
 export async function GET(req: Request) {
-  // Rate limit
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown';
   if (!rateLimit(ip)) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
@@ -85,7 +88,6 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Invalid cursor' }, { status: 400 });
   }
 
-  // ⭐ Un seul appel (Search API retourne images + vidéos mélangées)
   const result = await searchFolder(folder, cursor);
 
   const items = (result.resources ?? []).map((r: any) => ({
