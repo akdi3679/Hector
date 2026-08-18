@@ -1,36 +1,38 @@
 "use client";
 import { useEffect, useState } from 'react';
 
-interface Item {
-  id: string;
-  url: string;
-  type: 'image' | 'gif' | 'video';
-}
+interface Item { id: string; url: string; type: 'image' | 'gif' | 'video'; }
 
 export default function MediaStrip({ folder, tall = false }: { folder: string; tall?: boolean }) {
   const [items, setItems] = useState<Item[]>([]);
-  const [next, setNext] = useState<{ ci: string; cv: string } | null>(null);
+  const [next, setNext] = useState<{ cursor: string } | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const load = async (cursor?: { ci: string; cv: string }) => {
+  const load = async (cursor?: string) => {
+    if (loading) return;
     setLoading(true);
-    const p = new URLSearchParams({ folder });
-    if (cursor) {
-      p.set('ci', cursor.ci);
-      p.set('cv', cursor.cv);
-    }
+    const controller = new AbortController();
     try {
-      const d = await (await fetch(`/api/media?${p}`)).json();
-      setItems((prev) => [...prev, ...d.items]);
-      setNext(d.next);
+      const p = new URLSearchParams({ folder });
+      if (cursor) p.set('cursor', cursor);
+      const res = await fetch(`/api/media?${p}`, { signal: controller.signal });
+      const d = await res.json();
+      if (Array.isArray(d.items)) {
+        setItems((prev) => [...prev, ...d.items]);
+        setNext(d.next);
+      }
     } catch (err) {
-      console.error('Media load failed:', err);
+      if ((err as Error).name !== 'AbortError') console.error('Media load failed:', err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
+    const controller = new AbortController();
     load();
+    return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folder]);
 
   const h = tall ? 'h-[420px]' : 'h-[320px]';
@@ -53,7 +55,7 @@ export default function MediaStrip({ folder, tall = false }: { folder: string; t
           </div>
         ))}
         {next && (
-          <button type="button" onClick={() => load(next)} disabled={loading}
+          <button type="button" onClick={() => load(next.cursor)} disabled={loading}
             className="btn btn-ghost h-[320px] w-[180px] shrink-0 snap-center disabled:opacity-50">
             {loading ? '…' : 'Charger plus'}
           </button>
