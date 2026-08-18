@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 interface Item { id: string; url: string; type: 'image' | 'gif' | 'video'; }
 
