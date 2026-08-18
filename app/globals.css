@@ -82,6 +82,7 @@ body { @apply bg-paper font-sans text-ink antialiased; }
 @keyframes breathe { from { scale: 1; } to { scale: 1.07; } }
 
 /* pellicule : scrollbar fine couleur soleil */
+/* Bande de défilement : scrollbar visible malgré l'ombre des polaroids */
 .moments-strip { 
   scrollbar-width: thin; 
   scrollbar-color: var(--color-sun) rgb(22 41 74 / .08);
@@ -99,4 +100,9 @@ body { @apply bg-paper font-sans text-ink antialiased; }
 .moments-strip::-webkit-scrollbar-track { 
   background: rgb(22 41 74 / .08); 
   border-radius: 999px;
+}
+
+/* Réduit l'ombre des polaroids dans la bande pour ne pas cacher la scrollbar */
+.moments-strip .polaroid {
+  box-shadow: 0 10px 24px -12px rgb(22 41 74 / .35);
 }
