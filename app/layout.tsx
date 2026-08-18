@@ -3,6 +3,8 @@
 
 import type { Metadata } from 'next';
 import './globals.css';
+import { siteConfig, absoluteUrl } from '@/lib/site-config';
+
 import { SiteDataProvider } from '@/lib/site-data';
 
 import { Fraunces, Archivo, Caveat } from 'next/font/google';
@@ -31,7 +33,7 @@ const caveat = Caveat({
 
 // ⭐ Metadata SEO complète
 export const metadata: Metadata = {
-  metadataBase: new URL('https://hector-lake.vercel.app'),
+  metadataBase: new URL(siteConfig.url),
   
   title: {
     default: 'La Virée d\'Hector — Voyager, découvrir, raconter | Créateurs de contenu',
@@ -40,8 +42,8 @@ export const metadata: Metadata = {
   description: 'Sophie & Jean-Marc parcourent l\'Europe à bord d\'Hector, leur camion aménagé. Road-trips, découvertes et vie nomade en vidéo — YouTube, TikTok, Instagram.',
   keywords: ['vanlife', 'voyage', 'camion aménagé', 'youtube', 'partenariat', 'équipement nomade', 'high-tech', 'énergie solaire'],
   authors: [{ name: 'Sophie & Jean-Marc' }],
-  creator: 'La Virée d\'Hector',
-  publisher: 'La Virée d\'Hector',
+  creator: siteConfig.name,
+  publisher: siteConfig.name,
   
   formatDetection: {
     email: false,
@@ -52,23 +54,23 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
-    url: 'https://lavireedhector.fr',
-    siteName: 'La Virée d\'Hector',
-    title: 'La Virée d\'Hector — It\'s time to go.',
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+    title: `${siteConfig.name} — ${siteConfig.tagline}`,
     description: 'Un couple, un camion aménagé, trois chaînes YouTube. Découvrez notre univers et collaborons.',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'La Virée d\'Hector — Sophie, Jean-Marc & Hector',
+        alt: `${siteConfig.name} — Sophie, Jean-Marc & Hector`,
       },
     ],
   },
   
   twitter: {
     card: 'summary_large_image',
-    title: 'La Virée d\'Hector — It\'s time to go.',
+    title: `${siteConfig.name} — ${siteConfig.tagline}`,
     description: 'Un couple, un camion aménagé, trois chaînes YouTube. Découvrez notre univers et collaborons.',
     images: ['/og-image.jpg'],
   },
@@ -85,23 +87,19 @@ export const metadata: Metadata = {
     },
   },
   
- 
-  
-  // À décommenter quand tu as les codes de vérification
-  // verification: {
-  //   google: 'google-site-verification-code',
-  //   yandex: 'yandex-verification-code',
-  // },
+  alternates: {
+    canonical: siteConfig.url,
+  },
 };
 
 // ⭐ JSON-LD Schema.org (SEO structuré)
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'La Virée d\'Hector',
-  slogan: 'It\'s time to go',
-  url: 'https://lavireedhector.fr',
-  logo: 'https://lavireedhector.fr/icon.png',
+  name: siteConfig.name,
+  slogan: siteConfig.tagline,
+  url: siteConfig.url,
+  logo: absoluteUrl('/icon.png'),
   description: 'Créateurs de contenu voyage, tech et vanlife. 3 chaînes YouTube, partenariats marques.',
   founder: [
     { '@type': 'Person', name: 'Sophie' },
@@ -155,3 +153,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+
+
+

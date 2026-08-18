@@ -1,5 +1,6 @@
 // app/robots.ts
 import { MetadataRoute } from 'next';
+import { siteConfig, absoluteUrl } from '@/lib/site-config';
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -9,8 +10,24 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
         disallow: ['/api/', '/_next/'],
       },
+      {
+        userAgent: 'GPTBot',
+        disallow: '/',
+      },
+      {
+        userAgent: 'ChatGPT-User',
+        disallow: '/',
+      },
+      {
+        userAgent: 'Google-Extended',
+        disallow: '/',
+      },
+      {
+        userAgent: 'CCBot',
+        disallow: '/',
+      },
     ],
-    sitemap: 'https://hector-laka.vercel.app/sitemap.xml',
-    host: 'https://hector-laka.vercel.app',
+    sitemap: absoluteUrl('/sitemap.xml'),
+    host: siteConfig.url,
   };
 }
