@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
 const FOLDER = process.env.CLOUDINARY_MEDIA_KIT_FOLDER || '';
 const FILENAME = process.env.CLOUDINARY_MEDIA_KIT_FILENAME || 'Media-Kit.pdf';
 const DOWNLOAD_NAME = 'La-Viree-d-Hector-Media-Kit.pdf';
