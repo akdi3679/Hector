@@ -26,7 +26,6 @@ export default function Header() {
         <div className="border-t border-ink/10 bg-paper px-5 pb-8 pt-4 md:hidden">
           <nav className="flex flex-col gap-4">
             {navigation.map((n) => <a key={n.href} href={n.href} onClick={() => setOpen(false)} className="font-display text-2xl font-semibold">{n.label}</a>)}
-<YouTubeDropdown variant="red" />
           </nav>
         </div>
       )}
