@@ -82,10 +82,9 @@ body { @apply bg-paper font-sans text-ink antialiased; }
 @keyframes breathe { from { scale: 1; } to { scale: 1.07; } }
 
 /* pellicule : scrollbar fine couleur soleil */
-/* pellicule : scrollbar complète, pas coupée */
 .moments-strip { 
   scrollbar-width: thin; 
-  scrollbar-color: var(--color-sun) transparent;
+  scrollbar-color: var(--color-sun) rgb(22 41 74 / .08);
 }
 
 .moments-strip::-webkit-scrollbar { 
@@ -100,9 +99,4 @@ body { @apply bg-paper font-sans text-ink antialiased; }
 .moments-strip::-webkit-scrollbar-track { 
   background: rgb(22 41 74 / .08); 
   border-radius: 999px;
-}
-
-/* Empêche le clip de la scrollbar */
-.moments-strip {
-  scrollbar-gutter: stable;
 }
