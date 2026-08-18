@@ -9,9 +9,11 @@ import { YoutubeIcon, InstagramIcon, FacebookIcon, TiktokIcon } from './SocialIc
 import {
   brandData, navigation, storyData, platforms, formats, collabs,
   youtubeChannels, fallbackLatestVideos, mediaKitUrl, material,
-  socialStats, brandsAudience,
+  socialStats, brandsAudience 
 } from '@/data/viree';
 import type { YoutubeChannel } from '@/data/viree';
+import { cdn } from '@/lib/cloudinary';
+import { brandImages } from '@/data/media';
 import type { VideoData, ReviewData, ChannelData } from '@/lib/site-data';
 function Head({ hand, title, sub }: { hand: string; title: string; sub?: string }) {
   return (
@@ -50,7 +52,12 @@ export function Hero() {
         <div className="relative md:col-span-5">
           <div className="polaroid polaroid-float rotate-2">
             <div className="card-img aspect-[4/5] overflow-hidden">
-<img src="https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=1200&auto=format&fit=crop" alt="Un camion aménagé au campement, le soir" fetchPriority="high" className="h-full w-full object-cover" />
+           <img
+  src={cdn(brandImages.hero.publicId, { w: 1200, ar: '4:5' })}
+  alt={brandImages.hero.alt}
+  fetchPriority="high"
+  className="h-full w-full object-cover"
+/>
             </div>
             <p className="hand pt-3 text-center text-2xl">Hector, notre maison</p>
           </div>
@@ -172,7 +179,12 @@ export function StorySection() {
       <Reveal>
         <div className="polaroid -rotate-1">
           <div className="card-img aspect-[4/5] overflow-hidden">
-            <img src="/images/sophie-marc.jpg" alt="Sophie et Jean-Marc, le couple derrière La Virée d'Hector" loading="lazy" className="h-full w-full object-cover" />
+         <img
+  src={cdn(brandImages.bio.publicId, { w: 900, ar: '4:5' })}
+  alt={brandImages.bio.alt}
+  loading="lazy"
+  className="h-full w-full object-cover"
+/>
           </div>
           <p className="hand pt-3 text-center text-2xl">nous, en vrai</p>
         </div>

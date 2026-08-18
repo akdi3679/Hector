@@ -3,6 +3,9 @@
 import { useState, type MouseEvent } from 'react';
 import { brandData, navigation, youtubeChannels, mediaKitUrl } from '@/data/viree';
 import type { YoutubeChannel } from '@/data/viree';
+import { cdn } from '@/lib/cloudinary';
+import { brandImages } from '@/data/media';
+
 export default function Footer() {
   const [on, setOn] = useState(false);
 const [ytOpen, setYtOpen] = useState(false);
@@ -17,17 +20,16 @@ const [ytOpen, setYtOpen] = useState(false);
       {/* Hector : entier sur mobile, fusionné sur grand écran */}
       <div className="relative h-[300px] w-full sm:h-[400px] md:h-[520px]" aria-hidden="true">
         <img
-          src="/images/hector-off.jpg"
-          alt=""
-          className="absolute inset-0 h-full w-full object-contain object-center md:object-cover"
-        />
-        <img
-          src="/images/hector-on.jpg"
-          alt=""
-          className={`absolute inset-0 h-full w-full object-contain object-center transition-opacity duration-700 md:object-cover ${on ? 'opacity-100' : 'opacity-0'}`}
-        />
-        {/* halo des phares */}
-       
+  src={cdn(brandImages.footerOff.publicId, { w: 1600, crop: 'limit' })}
+  alt={brandImages.footerOff.alt}
+  className="absolute inset-0 h-full w-full object-contain object-center md:object-cover"
+/>
+<img
+  src={cdn(brandImages.footerOn.publicId, { w: 1600, crop: 'limit' })}
+  alt={brandImages.footerOn.alt}
+  className={`absolute inset-0 h-full w-full object-contain object-center md:object-cover ${on ? 'opacity-100' : 'opacity-0'} transition-opacity duration-700`}
+/>
+        
         {/* dégradé : lisse en haut, fond dans l'encre en bas */}
         <div
           className="pointer-events-none absolute inset-0"
