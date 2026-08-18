@@ -9,4 +9,5 @@ export const cloudinaryConfig = {
 };
 
 // URL avec fl_attachment → force le téléchargement silencieux
-export const mediaKitUrl = `https://res.cloudinary.com/${cloudinaryConfig.cloudName}/raw/upload/fl_attachment:La-Viree-d-Hector-Media-Kit/${cloudinaryConfig.folders.mediaKit}/Media-Kit.pdf`;
+export const mediaKitUrl = `https://res.cloudinary.com/${cloudinaryConfig.cloudName}/image/upload/${cloudinaryConfig.folders.mediaKit}/Media-Kit.pdf`;
+
