@@ -1,39 +1,79 @@
 // lib/useMedia.ts
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 
-const cache = new Map<string, Record<string, string>>();
+// ⭐ Store global avec subscription
+type MediaStore = Record<string, Record<string, string>>;
 
+const store: MediaStore = {};
+const listeners = new Set<(key: string) => void>();
+
+function subscribe(key: string, cb: (key: string) => void) {
+  listeners.add(cb);
+  return () => listeners.delete(cb);
+}
+
+function getSnapshot(key: string): Record<string, string> {
+  return store[key] ?? {};
+}
+
+function setImages(key: string, images: Record<string, string>) {
+  store[key] = images;
+  listeners.forEach((cb) => cb(key));
+}
+
+// ⭐ Cache des fetch en cours
+const fetches = new Map<string, Promise<Record<string, string>>>();
+
+async function fetchImages(key: string): Promise<Record<string, string>> {
+  // Déjà dans le store ?
+  if (store[key]) return store[key];
+  
+  // Fetch en cours ?
+  if (fetches.has(key)) return fetches.get(key)!;
+
+  const promise = fetch(`/api/media?key=${encodeURIComponent(key)}`)
+    .then((r) => (r.ok ? r.json() : { images: {} }))
+    .then((d) => {
+      const imgs = (d && d.images && typeof d.images === 'object') ? d.images : {};
+      setImages(key, imgs);
+      fetches.delete(key);
+      return imgs;
+    })
+    .catch((err) => {
+      console.error(`[useMedia] Failed for key "${key}":`, err);
+      fetches.delete(key);
+      return {};
+    });
+
+  fetches.set(key, promise);
+  return promise;
+}
+
+// ⭐ Hook principal avec subscription
 export function useMediaImages(key: string): Record<string, string> {
-  const [images, setImages] = useState<Record<string, string>>(() => cache.get(key) ?? {});
+  const [images, setImagesState] = useState<Record<string, string>>(
+    () => getSnapshot(key)
+  );
 
   useEffect(() => {
-    if (cache.has(key)) {
-      setImages(cache.get(key) ?? {});
-      return;
+    // Initial fetch si pas déjà fait
+    if (!store[key] && !fetches.has(key)) {
+      fetchImages(key).then((imgs) => {
+        setImagesState(imgs);
+      });
+    } else if (store[key]) {
+      setImagesState(store[key]);
     }
 
-    let cancelled = false;
+    // Subscribe aux changements
+    const unsub = subscribe(key, (changedKey) => {
+      if (changedKey === key) {
+        setImagesState(getSnapshot(key));
+      }
+    });
 
-    fetch(`/api/media?key=${encodeURIComponent(key)}`)
-      .then((r) => (r.ok ? r.json() : { images: {} }))
-      .then((d) => {
-        if (cancelled) return;
-        const imgs = (d && d.images && typeof d.images === 'object') ? d.images : {};
-        cache.set(key, imgs);
-        setImages(imgs);
-      })
-      .catch((err) => {
-        console.error(`[useMedia] Failed for key "${key}":`, err);
-        if (!cancelled) {
-          cache.set(key, {});
-          setImages({});
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    return unsub;
   }, [key]);
 
   return images;
@@ -41,5 +81,10 @@ export function useMediaImages(key: string): Record<string, string> {
 
 export function useMediaImage(key: string): string | null {
   const images = useMediaImages(key);
-  return images[key] ?? null;
+  // Pour une image unique, la clé est aussi le nom dans l'objet
+  // Mais on peut aussi chercher par valeur dans l'objet
+  const keys = Object.keys(images);
+  if (keys.length === 0) return null;
+  // Prend la première (et unique) valeur
+  return images[keys[0]] ?? null;
 }

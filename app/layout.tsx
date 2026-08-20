@@ -4,6 +4,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { siteConfig, absoluteUrl } from '@/lib/site-config';
+import { ToastProvider } from '@/components/Toast';
+import { useGlobalFetch } from '@/lib/useGlobalFetch';
 
 import { SiteDataProvider } from '@/lib/site-data';
 
@@ -142,13 +144,21 @@ const videosSchema = {
     },
   ],
 };
+function GlobalErrorHandler() {
+  useGlobalFetch();
+  return null;
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className={`${fraunces.variable} ${archivo.variable} ${caveat.variable}`}>
       <body>
   <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
   <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(videosSchema) }} />
-  <SiteDataProvider>{children}</SiteDataProvider>
+  <SiteDataProvider>        <ToastProvider>
+    <GlobalErrorHandler /> 
+{children}        </ToastProvider>
+</SiteDataProvider>
 </body>
     </html>
   );
