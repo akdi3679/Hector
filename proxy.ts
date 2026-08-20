@@ -1,8 +1,7 @@
 // middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { checkRateLimit, RATE_LIMIT_CONFIGS } from '@/lib/rate-limit';
-
+import { checkRateLimitRedis, RATE_LIMIT_CONFIGS } from '@/lib/rate-limit-redis';
 // ⭐ Configuration depuis .env (via security-config)
 import { isAllowedOrigin, isValidClientKey, CLIENT_API_HEADER } from '@/lib/security-config';
 
@@ -63,7 +62,7 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
 }
 
 // ⭐⭐⭐ NOM CORRECT : middleware (PAS proxy !)
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const ip = getClientIp(request);
   const path = request.nextUrl.pathname;
   const isApi = path.startsWith('/api/');
@@ -88,8 +87,7 @@ export function proxy(request: NextRequest) {
   if (isApi) {
     const isSensitive = SENSITIVE_PATHS.some((p) => path.startsWith(p));
     const endpoint = isSensitive ? 'sensitive' : 'global';
-    const { allowed, remaining, resetMs } = checkRateLimit(endpoint, ip);
-
+const { allowed, remaining, resetMs } = await checkRateLimitRedis(endpoint, ip);
     if (!allowed) {
       return NextResponse.json(
         { error: 'Too many requests' },

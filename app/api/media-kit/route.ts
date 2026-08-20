@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { cloudinaryConfig } from '@/lib/cloudinary-config';
 import { mediaKitConfig } from '@/data/media';
 import { z } from 'zod';
-import { withRateLimit } from '@/lib/rate-limit';
+import { withRateLimitRedis } from '@/lib/rate-limit-redis';
 
 export const revalidate = 3600;
 
@@ -17,10 +17,8 @@ const FILENAME_SCHEMA = z.string()
 
 export async function GET(req: Request) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown';
- const blocked = withRateLimit('media-kit', ip);
-  if (blocked) return blocked;
-  
-
+ const blocked = await withRateLimitRedis('media-kit', ip);
+if (blocked) return blocked;
   if (!CLOUD) {
     return NextResponse.json({ error: 'config_error' }, { status: 500 });
   }

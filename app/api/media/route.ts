@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { cloudinaryConfig } from '@/lib/cloudinary-config';
 import { mediaKeys } from '@/data/media';
 import { z } from 'zod';
-import { withRateLimit } from '@/lib/rate-limit';
+import { withRateLimitRedis } from '@/lib/rate-limit-redis';
 
 // ⭐ Retry helper pour résilience
 async function fetchWithRetry(
@@ -49,9 +49,8 @@ const MEDIA_KEY_SCHEMA = z.string()
 
 export async function GET(req: Request) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown';
-  const blocked = withRateLimit('media', ip);
-  if (blocked) return blocked;
-
+  const blocked = await withRateLimitRedis('media', ip);
+if (blocked) return blocked;
   
   if (!KEY || !SECRET) {
     console.error('[media] Missing Cloudinary credentials');
