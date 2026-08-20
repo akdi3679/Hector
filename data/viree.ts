@@ -1,6 +1,7 @@
 export { material } from './material';
-export { mediaKitUrl } from './media';
 export { socialStats, brandsAudience } from './social-stats';
+export const mediaKitUrl = '/api/media-kit';
+
 export const brandData = {
   name: 'La Virée d’Hector',
   tagline: 'It’s time to go.',

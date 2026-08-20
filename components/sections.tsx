@@ -5,6 +5,9 @@ import YouTubeDropdown from './YouTubeDropdown';
 import MediaStrip from './MediaStrip';
 import { useSiteData } from '@/lib/site-data';
 import { Globe, ChevronLeft } from 'lucide-react';
+import { useMediaImage } from "@/lib/useMedia";
+import CloudinaryImage from "./CloudinaryImage";
+import { cloudinaryConfig } from "@/lib/cloudinary-config";
 import { YoutubeIcon, InstagramIcon, FacebookIcon, TiktokIcon } from './SocialIcons';
 import {
   brandData, navigation, storyData, platforms, formats, collabs,
@@ -12,7 +15,6 @@ import {
   socialStats, brandsAudience 
 } from '@/data/viree';
 import type { YoutubeChannel } from '@/data/viree';
-import { cdn } from '@/lib/cloudinary';
 import { brandImages } from '@/data/media';
 import type { VideoData, ReviewData, ChannelData } from '@/lib/site-data';
 function Head({ hand, title, sub }: { hand: string; title: string; sub?: string }) {
@@ -26,6 +28,9 @@ function Head({ hand, title, sub }: { hand: string; title: string; sub?: string 
 }
 
 export function Hero() {
+  // ⭐ Hook en haut (avant tout return)
+  const heroUrl = useMediaImage("hero");
+
   return (
     <section className="relative overflow-hidden pt-28 md:pt-36">
       <div className="mx-auto grid w-full max-w-[1280px] items-center gap-14 px-5 pb-16 md:grid-cols-12 md:px-8 md:pb-24">
@@ -35,11 +40,11 @@ export function Hero() {
             On a tout quitté pour vivre <em className="text-sunset">la route</em>.
           </h1>
           <p className="hand relative mt-5 inline-block text-3xl text-sunset">
-  …et on vous raconte tout.
-  <svg className="draw-line" viewBox="0 0 240 14" aria-hidden="true">
-    <path d="M4 9c45-6 85 5 122-2 34-6 70 3 110-4" />
-  </svg>
-</p>
+            …et on vous raconte tout.
+            <svg className="draw-line" viewBox="0 0 240 14" aria-hidden="true">
+              <path d="M4 9c45-6 85 5 122-2 34-6 70 3 110-4" />
+            </svg>
+          </p>
           <p className="mt-6 max-w-lg text-base leading-relaxed text-mist md:text-lg">
             Un camion aménagé nommé Hector, trois chaînes YouTube, et le monde comme jardin. Montez à bord — ou travaillons ensemble.
           </p>
@@ -47,17 +52,23 @@ export function Hero() {
             <YouTubeDropdown variant="red" />
             <a href="#marques" className="btn btn-ink">Espace marques</a>
           </div>
- 
         </div>
+
         <div className="relative md:col-span-5">
           <div className="polaroid polaroid-float rotate-2">
             <div className="card-img aspect-[4/5] overflow-hidden">
-           <img
-  src={cdn(brandImages.hero.publicId, { w: 1200, ar: '4:5' })}
-  alt={brandImages.hero.alt}
-  fetchPriority="high"
-  className="h-full w-full object-cover"
-/>
+              {heroUrl ? (
+                <CloudinaryImage
+                  publicId={cloudinaryConfig.mediaKeys.hero.name}
+                  alt="Hector, notre maison"
+                  w={1200}
+                  ar="4:5"
+                  priority={true}
+                  className="h-full w-full"
+                />
+              ) : (
+                <div className="h-full w-full bg-gradient-to-br from-ink/10 to-ink/5 animate-pulse" />
+              )}
             </div>
             <p className="hand pt-3 text-center text-2xl">Hector, notre maison</p>
           </div>
@@ -174,30 +185,42 @@ export function VideosSection() {
   );
 }
 export function StorySection() {
+  const bioUrl = useMediaImage("bio");
+
   return (
     <section id="apropos" className="mx-auto grid w-full max-w-[1280px] items-center gap-14 px-5 pb-20 md:px-8 md:pb-28 lg:grid-cols-2">
       <Reveal>
         <div className="polaroid -rotate-1">
           <div className="card-img aspect-[4/5] overflow-hidden">
-         <img
-  src={cdn(brandImages.bio.publicId, { w: 900, ar: '4:5' })}
-  alt={brandImages.bio.alt}
-  loading="lazy"
-  className="h-full w-full object-cover"
-/>
+            {bioUrl ? (
+              <CloudinaryImage
+                publicId={cloudinaryConfig.mediaKeys.bio.name}
+                alt="Sophie et Jean-Marc"
+                w={900}
+                ar="4:5"
+                priority={false}
+                className="h-full w-full"
+              />
+            ) : (
+              <div className="h-full w-full bg-gradient-to-br from-ink/10 to-ink/5 animate-pulse" />
+            )}
           </div>
           <p className="hand pt-3 text-center text-2xl">nous, en vrai</p>
         </div>
         <div className="mt-8 flex flex-wrap gap-3">
           {storyData.timeline.map((t, i) => (
-            <span key={t} className={`stamp ${i % 2 ? 'rotate-1 !border-ink/40 !text-ink/60' : '-rotate-1'}`}>{t}</span>
+            <span key={t} className={`stamp ${i % 2 ? "rotate-1 !border-ink/40 !text-ink/60" : "-rotate-1"}`}>
+              {t}
+            </span>
           ))}
         </div>
       </Reveal>
       <div>
         <Head hand="notre histoire" title={storyData.title} />
         <Reveal delay={100}>
-          {storyData.paragraphs.map((p, i) => <p key={i} className="mb-5 max-w-xl leading-relaxed text-mist">{p}</p>)}
+          {storyData.paragraphs.map((p, i) => (
+            <p key={i} className="mb-5 max-w-xl leading-relaxed text-mist">{p}</p>
+          ))}
           <p className="hand mt-6 text-3xl text-sunset">{storyData.signature}</p>
         </Reveal>
       </div>
@@ -457,22 +480,34 @@ export function ReviewsSection() {
 }
 export function MomentsSection() {
   return (
-    <section className="py-20 md:py-28">  {/* ⭐ Pas de overflow-hidden */}
+    <section className="py-20 md:py-28">
       <div className="mx-auto w-full max-w-[1280px] px-5 md:px-8">
-        <Head hand="ce qu'on n'oubliera jamais" title="Les moments inoubliables." sub="Photos, vidéos, gifs — comme on feuillette un album." />
+        <Head
+          hand="ce qu'on n'oubliera jamais"
+          title="Les moments inoubliables."
+          sub="Photos, vidéos, gifs — comme on feuillette un album."
+        />
       </div>
-      <Reveal><MediaStrip folder="moments" tall /></Reveal>
+      <Reveal>
+        <MediaStrip mediaKey="moments" tall />
+      </Reveal>
     </section>
   );
 }
 
 export function GallerySection() {
   return (
-    <section id="galerie" className="scroll-mt-24 py-20 md:py-28">  {/* ⭐ Pas de overflow-hidden */}
+    <section id="galerie" className="scroll-mt-24 py-20 md:py-28">
       <div className="mx-auto w-full max-w-[1280px] px-5 md:px-8">
-        <Head hand="la route en images" title="La galerie." sub="Les 20 derniers médias — chargez plus si vous voulez." />
+        <Head
+          hand="la route en images"
+          title="La galerie."
+          sub="Les derniers médias — chargés automatiquement depuis Cloudinary."
+        />
       </div>
-      <Reveal><MediaStrip folder="galerie" /></Reveal>
+      <Reveal>
+        <MediaStrip mediaKey="galerie" />
+      </Reveal>
     </section>
   );
 }
