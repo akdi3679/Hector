@@ -9,8 +9,10 @@ const listeners = new Set<(key: string) => void>();
 
 function subscribe(key: string, cb: (key: string) => void): () => void {
   listeners.add(cb);
+  // ⭐ Retourne une fonction qui ne retourne rien (void)
   return () => {
     listeners.delete(cb);
+    // Pas de return ici = void
   };
 }
 
@@ -63,7 +65,11 @@ export function useMediaImages(key: string): Record<string, string> {
       if (changedKey === key) setImagesState(getSnapshot(key));
     });
 
-    return () => unsubscribe();
+    // ⭐ Cleanup qui ne retourne rien (void)
+    return () => {
+      unsubscribe();
+      // Pas de return ici
+    };
   }, [key]);
 
   return images;
