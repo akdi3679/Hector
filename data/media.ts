@@ -1,6 +1,6 @@
 // data/media.ts
 
-// ⭐ Toutes les images de marque
+// ⭐ Toutes les images de marque du site
 export const brandImages = {
   hero: {
     publicId: 'hero-campement',
@@ -20,7 +20,7 @@ export const brandImages = {
   },
 };
 
-// ⭐ Whitelist des clés pour /api/media
+// ⭐ Clés pour /api/media (whitelist)
 export const mediaKeys = {
   hero: { folder: 'branding', name: 'hero-campement' },
   bio: { folder: 'branding', name: 'bio-sophie-marc' },
@@ -29,6 +29,12 @@ export const mediaKeys = {
   galerie: { folder: 'galerie' },
   moments: { folder: 'moments' },
   mediaKit: { folder: 'mediakit', name: 'Media-Kit' },
+} as const;
+
+// ⭐ Clés pour les galeries dynamiques (utilisées par MediaStrip)
+export const galleryKeys = {
+  galerie: 'galerie',
+  moments: 'moments',
 } as const;
 
 // ⭐ URL de l'API media kit
