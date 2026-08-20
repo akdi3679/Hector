@@ -27,11 +27,12 @@ export const cloudinaryConfig = {
     siteImg: 'site-img',
   },
 
-  mediaKit: {
-    folder: 'mediakit',
-    filename: 'Media-Kit.pdf',
-    downloadName: 'La-Viree-d-Hector-Media-Kit.pdf',
-  },
+
+mediaKit: {
+  folder: 'mediakit',                    // ⭐ Organisation seulement (pas dans l'URL)
+  filename: 'Media-Kit.pdf',             // ⭐ Exactement comme dans Cloudinary
+  downloadName: 'La-Viree-d-Hector-Media-Kit.pdf',
+},
 
   // ⭐⭐⭐ Typé explicitement comme Record<string, MediaKeyConfig>
   mediaKeys: {

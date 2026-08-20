@@ -5,11 +5,11 @@ import { cloudinaryConfig } from '@/lib/cloudinary-config';
 export const revalidate = 3600;
 
 const CLOUD = cloudinaryConfig.cloudName;
-const { folder, filename, downloadName } = cloudinaryConfig.mediaKit;
+const { filename, downloadName } = cloudinaryConfig.mediaKit;
 
 const SAFE_FILENAME = /^[a-zA-Z0-9._-]+$/;
 
-// ⭐ Rate limit spécifique (5/min)
+// Rate limit (5/min)
 const rateLimitMap = new Map<string, { count: number; reset: number }>();
 function rateLimit(ip: string): boolean {
   const now = Date.now();
@@ -27,10 +27,7 @@ export async function GET(req: Request) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown';
 
   if (!rateLimit(ip)) {
-    return NextResponse.json(
-      { error: 'too_many_requests' },
-      { status: 429 }
-    );
+    return NextResponse.json({ error: 'too_many_requests' }, { status: 429 });
   }
 
   if (!CLOUD) {
@@ -41,15 +38,16 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'config_error' }, { status: 500 });
   }
 
-  // ⭐ /image/upload/ sert les PDFs correctement (Cloudinary gère auto)
-  const publicId = `${folder}/${filename}`;
-  const pdfUrl = `https://res.cloudinary.com/${CLOUD}/image/upload/${publicId}`;
+  // ⭐⭐⭐ DYNAMIC FOLDER MODE : filename SEUL (pas de folder dans l'URL)
+  const pdfUrl = `https://res.cloudinary.com/${CLOUD}/image/upload/${filename}`;
+
+  console.log('[media-kit] Fetching:', pdfUrl);
 
   try {
     const res = await fetch(pdfUrl, { next: { revalidate: 3600 } });
 
     if (!res.ok) {
-      console.error(`[media-kit] Download failed: ${res.status}`);
+      console.error(`[media-kit] Failed: ${res.status}`, { url: pdfUrl });
       return NextResponse.json({ error: 'not_found' }, { status: 404 });
     }
 
