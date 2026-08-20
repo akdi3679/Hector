@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { siteConfig, absoluteUrl } from '@/lib/site-config';
 import { ToastProvider } from '@/components/Toast';
-import { useGlobalFetch } from '@/lib/useGlobalFetch';
+import { useGlobalFetch } from '@/lib/useToastApi';
 
 import { SiteDataProvider } from '@/lib/site-data';
 
