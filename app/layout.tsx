@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { siteConfig, absoluteUrl } from '@/lib/site-config';
 import { ToastProvider } from '@/components/Toast';
-import { useGlobalFetch } from '@/lib/useToastApi';
+import GlobalErrorHandler from "@/components/GlobalErrorHandler";
 
 import { SiteDataProvider } from '@/lib/site-data';
 
@@ -155,8 +155,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
   <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(videosSchema) }} />
    <SiteDataProvider>
-          <ToastProvider>
-            <GlobalErrorHandler />  {/* ⭐ UNE SEULE FOIS ICI */}
+         <ToastProvider>
+            <GlobalErrorHandler />
             {children}
           </ToastProvider>
         </SiteDataProvider>
