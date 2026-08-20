@@ -230,9 +230,7 @@ export async function GET(req: Request) {
   const blocked = withRateLimit('youtube', ip);
   if (blocked) return blocked;
 
-  if (!rateLimit(ip)) {
-    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
-  }
+ 
 
   if (!KEY) {
     const fallbackReviews = shuffle(base.reviews.filter(isValidReview))

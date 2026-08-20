@@ -19,9 +19,7 @@ export async function GET(req: Request) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown';
  const blocked = withRateLimit('media-kit', ip);
   if (blocked) return blocked;
-  if (!rateLimit(ip)) {
-    return NextResponse.json({ error: 'too_many_requests' }, { status: 429 });
-  }
+  
 
   if (!CLOUD) {
     return NextResponse.json({ error: 'config_error' }, { status: 500 });

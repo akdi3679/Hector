@@ -52,10 +52,7 @@ export async function GET(req: Request) {
   const blocked = withRateLimit('media', ip);
   if (blocked) return blocked;
 
-  if (!rateLimit(ip)) {
-    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
-  }
-
+  
   if (!KEY || !SECRET) {
     console.error('[media] Missing Cloudinary credentials');
     return NextResponse.json({ images: {} });
