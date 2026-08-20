@@ -136,9 +136,8 @@ const handleMediaKitDownload = async (e: React.MouseEvent) => {
           <a href={brandData.facebook.url} target="_blank" rel="noopener noreferrer" className="hover:text-sun">
   Facebook
 </a>
-{/* ⭐ Email de contact */}
 <a href={`mailto:${brandData.email}`} className="hover:text-sun">
-  ✉️ {brandData.email}
+  E-mail {brandData.email}
 </a>
           {/* ⭐ Bouton media kit avec gestion d'erreur */}
           <button
@@ -152,7 +151,6 @@ const handleMediaKitDownload = async (e: React.MouseEvent) => {
         </div>
       </div>
 
-      // components/Footer.tsx — Section du bas
 <p className="relative z-10 border-t border-paper/10 py-6 text-center text-xs text-paper/50">
   © {new Date().getFullYear()} La Virée d'Hector ·{' '}
   <a href="/mentions-legales" className="hover:text-sun">Mentions légales</a> ·{' '}

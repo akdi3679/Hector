@@ -4,7 +4,7 @@ import Reveal from './Reveal';
 import YouTubeDropdown from './YouTubeDropdown';
 import MediaStrip from './MediaStrip';
 import { useSiteData } from '@/lib/site-data';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft , AtSign} from 'lucide-react';
 import { useMediaImage } from "@/lib/useMedia";
 import CloudinaryImage from "./CloudinaryImage";
 import { cloudinaryConfig  } from "@/lib/cloudinary-config";
@@ -436,13 +436,11 @@ const handleMediaKitDownload = async (e: React.MouseEvent) => {
       >
         {downloading ? "Téléchargement..." : "Demander le media kit"}
       </button>
-      {/* ⭐ Bouton email */}
-      <a
-        href={`mailto:${brandData.email}?subject=Partenariat avec La Virée d'Hector`}
-        className="btn btn-ghost"
-      >
-        ✉️ Nous contacter
-      </a>
+     
+<a href={`mailto:${brandData.email}?subject=Partenariat avec La Virée d'Hector`}
+ className="btn btn-ghost">
+  <AtSign size={14} /> Nous contacter
+</a>
       <YouTubeDropdown variant="ghost" />
     </div>
   </div>
