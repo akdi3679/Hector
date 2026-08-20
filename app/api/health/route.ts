@@ -1,7 +1,7 @@
 
 // app/api/health/route.ts
 import { NextResponse } from 'next/server';
-import { withRateLimit } from '@/lib/rate-limit-local';
+import { withRateLimit } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 

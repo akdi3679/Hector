@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { youtubeChannels, fallbackLatestVideos, type YoutubeChannel } from '@/data/viree';
 import { curatedReviews } from '@/data/reviews';
 import { z } from 'zod';
-import { withRateLimit } from '@/lib/rate-limit-local';
+import { withRateLimit } from '@/lib/rate-limit';
 
 // ⭐ Types YouTube API
 interface YouTubePlaylistItem {

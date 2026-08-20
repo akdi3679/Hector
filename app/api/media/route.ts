@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { cloudinaryConfig } from '@/lib/cloudinary-config';
 import { mediaKeys } from '@/data/media';
 import { z } from 'zod';
-import { withRateLimit } from '@/lib/rate-limit-local';
+import { withRateLimit } from '@/lib/rate-limit';
 
 // ⭐ Retry helper pour résilience
 async function fetchWithRetry(

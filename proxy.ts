@@ -1,7 +1,7 @@
 // middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { checkRateLimit, RATE_LIMIT_CONFIGS } from '@/lib/rate-limit-local';
+import { checkRateLimit, RATE_LIMIT_CONFIGS } from '@/lib/rate-limit';
 
 // ⭐ Configuration depuis .env (via security-config)
 import { isAllowedOrigin, isValidClientKey, CLIENT_API_HEADER } from '@/lib/security-config';
