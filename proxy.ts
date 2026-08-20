@@ -5,6 +5,9 @@ import { checkRateLimitRedis, RATE_LIMIT_CONFIGS } from '@/lib/rate-limit-redis'
 // ⭐ Configuration depuis .env (via security-config)
 import { isAllowedOrigin, isValidClientKey, CLIENT_API_HEADER } from '@/lib/security-config';
 
+
+
+
 // ⭐ Endpoints sensibles (rate limit strict)
 const SENSITIVE_PATHS = ['/api/media-kit', '/api/youtube', '/api/health'];
 
@@ -88,6 +91,7 @@ export async function proxy(request: NextRequest) {
     const isSensitive = SENSITIVE_PATHS.some((p) => path.startsWith(p));
     const endpoint = isSensitive ? 'sensitive' : 'global';
 const { allowed, remaining, resetMs } = await checkRateLimitRedis(endpoint, ip);
+
     if (!allowed) {
       return NextResponse.json(
         { error: 'Too many requests' },
