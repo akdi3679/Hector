@@ -28,16 +28,26 @@ const VIDEO_ID_SCHEMA = z
 
 // ⭐ Fonction yt sécurisée
 
-const SAFE_PATH = /^[a-zA-Z]+(\?[a-zA-Z0-9_=&%.@-]*)?$/;
 
-const yt = async (p: string) => {
-  // ⭐ Vérifie que le chemin est propre (pas de caractères suspects)
-  if (!SAFE_PATH.test(p)) {
-    console.error('[youtube] Invalid path:', p);
-    throw new Error('Invalid YouTube API path');
+const SAFE_ENDPOINT = /^[a-zA-Z]+$/;
+
+const yt = async (endpointOrPath: string, params?: Record<string, string>) => {
+  let fullPath: string;
+
+  if (params !== undefined) {
+    // ── Mode 2 arguments : yt('playlistItems', { part: 'snippet', ... }) ──
+    if (!SAFE_ENDPOINT.test(endpointOrPath)) {
+      console.error('[youtube] Invalid endpoint:', endpointOrPath);
+      throw new Error('Invalid YouTube endpoint');
+    }
+    const queryString = new URLSearchParams({ ...params, key: KEY || '' }).toString();
+    fullPath = `${endpointOrPath}?${queryString}`;
+  } else {
+    // ── Mode 1 argument : yt('playlistItems?part=snippet&key=xxx') ──
+    fullPath = endpointOrPath;
   }
 
-  const r = await fetch(`https://www.googleapis.com/youtube/v3/${p}`, {
+  const r = await fetch(`https://www.googleapis.com/youtube/v3/${fullPath}`, {
     next: { revalidate: 3600 },
     signal: AbortSignal.timeout(10000), // ⭐ Timeout 10s
   });
@@ -57,6 +67,7 @@ const base = {
  * Recherche intelligente : test jusqu'à 12 vidéos choisies au hasard dans la liste des uploads.
  * Skip les vidéos avec commentaires désactivés. Arrête dès qu'on a 3 reviews.
  */
+
 async function getChannelReviewsSmart(
   uploadsPlaylistId: string,
   channelName: string,
@@ -64,19 +75,11 @@ async function getChannelReviewsSmart(
 ): Promise<any[]> {
   const out: any[] = [];
 
-  // ⭐ Validation avant d'appeler l'API
   try {
-    PLAYLIST_SCHEMA.parse(uploadsPlaylistId);
-  } catch {
-    return out;
-  }
-
-  try {
-    const pl = await yt('playlistItems', {
-      part: 'snippet',
-      maxResults: '30',
-      playlistId: uploadsPlaylistId,
-    });
+    // ⭐ 1 argument (query string)
+    const pl = await yt(
+      `playlistItems?part=snippet&maxResults=30&playlistId=${uploadsPlaylistId}&key=${KEY}`
+    );
 
     const videoIds: string[] = (pl.items ?? [])
       .map((v: any) => v.snippet?.resourceId?.videoId)
@@ -89,27 +92,16 @@ async function getChannelReviewsSmart(
     for (const vid of shuffled) {
       if (out.length >= limit) break;
 
-      // ⭐ Validation de l'ID vidéo
       try {
-        VIDEO_ID_SCHEMA.parse(vid);
-      } catch {
-        continue;
-      }
-
-      try {
-        const ct = await yt('commentThreads', {
-          part: 'snippet',
-          videoId: vid,
-          order: 'relevance',
-          maxResults: '5',
-        });
+        // ⭐ 1 argument
+        const ct = await yt(
+          `commentThreads?part=snippet&videoId=${vid}&order=relevance&maxResults=5&key=${KEY}`
+        );
 
         if (!ct.items?.length) continue;
 
-        const v = await yt('videos', {
-          part: 'snippet',
-          ids: vid,
-        });
+        // ⭐ 1 argument
+        const v = await yt(`videos?part=snippet&ids=${vid}&key=${KEY}`);
         const vTitle = v.items?.[0]?.snippet?.title ?? '';
 
         for (const it of ct.items ?? []) {
@@ -117,7 +109,6 @@ async function getChannelReviewsSmart(
           const s = it.snippet?.topLevelComment?.snippet;
           if (s && (s.textDisplay || '').trim().length > 10) {
             out.push({
-              // ⭐ Sanitize le HTML des commentaires YouTube
               text: s.textDisplay
                 .replace(/<[^>]*>/g, '')
                 .replace(/[<>]/g, '')
@@ -128,7 +119,7 @@ async function getChannelReviewsSmart(
               videoId: vid,
               videoTitle: vTitle.slice(0, 200),
               channel: channelName,
-              likes: Math.min(s.likeCount ?? 0, 999999), // ⭐ Cap anti-abus
+              likes: Math.min(s.likeCount ?? 0, 999999),
             });
           }
         }
