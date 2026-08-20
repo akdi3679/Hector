@@ -24,15 +24,28 @@ const fallback: SiteData = {
 
 const Ctx = createContext<SiteData>(fallback);
 let cache: SiteData | null = null;
+let cacheTime = 0;
+const CACHE_TTL = 5 * 60_000; // ⭐ 5 minutes
 
 export function SiteDataProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<SiteData>(cache ?? fallback);
+  
   useEffect(() => {
-    if (cache) return;
-    fetch('/api/youtube').then((r) => r.json())
-      .then((d) => { if (d?.channels) { cache = d as SiteData; setData(cache); } })
+    const isCacheFresh = cache && (Date.now() - cacheTime < CACHE_TTL);
+    if (isCacheFresh) return;
+    
+    fetch('/api/youtube')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d?.channels) {
+          cache = d as SiteData;
+          cacheTime = Date.now();
+          setData(cache);
+        }
+      })
       .catch(() => {});
   }, []);
+  
   return <Ctx.Provider value={data}>{children}</Ctx.Provider>;
 }
 

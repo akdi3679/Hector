@@ -4,20 +4,22 @@ import Reveal from './Reveal';
 import YouTubeDropdown from './YouTubeDropdown';
 import MediaStrip from './MediaStrip';
 import { useSiteData } from '@/lib/site-data';
-import { Globe, ChevronLeft } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { useMediaImage } from "@/lib/useMedia";
 import CloudinaryImage from "./CloudinaryImage";
-import { cloudinaryConfig , getPublicId  } from "@/lib/cloudinary-config";
+import { cloudinaryConfig  } from "@/lib/cloudinary-config";
 import { useApiFetch } from "@/lib/useToastApi";
 
 import { YoutubeIcon, InstagramIcon, FacebookIcon, TiktokIcon } from './SocialIcons';
 import {
   brandData, navigation, storyData, platforms, formats, collabs,
-  youtubeChannels, fallbackLatestVideos, mediaKitUrl, material,
+  youtubeChannels,
   socialStats, brandsAudience 
 } from '@/data/viree';
+import { material } from "@/data/material";
+
+import { mediaKitUrl, galleryKeys , brandImages } from '@/data/media';
 import type { YoutubeChannel } from '@/data/viree';
-import { brandImages } from '@/data/media';
 import type { VideoData, ReviewData, ChannelData } from '@/lib/site-data';
 function Head({ hand, title, sub }: { hand: string; title: string; sub?: string }) {
   return (
@@ -61,7 +63,7 @@ export function Hero() {
             <div className="card-img aspect-[4/5] overflow-hidden">
            {heroUrl ? (
   <CloudinaryImage
-    publicId={getPublicId('hero')}
+    publicId={brandImages.hero.publicId}
     alt="Hector, notre maison"
     w={1200}
     ar="4:5"
@@ -196,7 +198,7 @@ export function StorySection() {
           <div className="card-img aspect-[4/5] overflow-hidden">
            {bioUrl ? (
   <CloudinaryImage
-    publicId={getPublicId('bio')}
+    publicId={brandImages.bio.publicId}
     alt="Sophie et Jean-Marc"
     w={900}
     ar="4:5"
@@ -332,6 +334,7 @@ export function BrandsSection() {
   const apiFetch = useApiFetch();
 
 
+// components/Footer.tsx et BrandsSection
 const handleMediaKitDownload = async (e: React.MouseEvent) => {
   e.preventDefault();
   e.stopPropagation();
@@ -342,21 +345,25 @@ const handleMediaKitDownload = async (e: React.MouseEvent) => {
     const res = await apiFetch(
       mediaKitUrl,
       {},
-      'Téléchargement du media kit démarré' // ⭐ Message de succès
+      'Téléchargement du media kit démarré',
+      'blob'
     );
-    if (res.ok) {
+
+    if (res.ok && res.data instanceof Blob) {
+      const blobUrl = URL.createObjectURL(res.data);
       const a = document.createElement('a');
-      a.href = mediaKitUrl;
+      a.href = blobUrl;
       a.download = 'La-Viree-d-Hector-Media-Kit.pdf';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
     }
+    // Si !res.ok, le toast est déjà affiché par apiFetch ✅
   } finally {
     setDownloading(false);
   }
 };
-
   return (
     <section id="marques" className="bg-ink py-20 text-paper md:py-28">
       <div className="mx-auto w-full max-w-[1280px] px-5 md:px-8">
@@ -523,7 +530,7 @@ export function MomentsSection() {
         />
       </div>
       <Reveal>
-        <MediaStrip mediaKey="moments" tall />
+        <MediaStrip mediaKey={galleryKeys.moments} tall />
       </Reveal>
     </section>
   );
@@ -540,7 +547,7 @@ export function GallerySection() {
         />
       </div>
       <Reveal>
-        <MediaStrip mediaKey="galerie" />
+        <MediaStrip mediaKey={galleryKeys.galerie} />
       </Reveal>
     </section>
   );

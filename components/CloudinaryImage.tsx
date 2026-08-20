@@ -1,6 +1,6 @@
 // components/CloudinaryImage.tsx
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { RefreshCw, ImageOff } from "lucide-react";
 import { cdn } from "@/lib/cloudinary-config";
 
@@ -32,9 +32,11 @@ export default function CloudinaryImage({
   const [retryKey, setRetryKey] = useState(0); // ⭐ Pour forcer le rechargement
 
   const src = cdn(publicId, { w, h, ar, crop });
-  // ⭐ Ajoute un timestamp pour bypass le cache au retry
-  const srcWithCacheBust = `${src}${src.includes("?") ? "&" : "?"}v=${retryKey}`;
-
+// ⭐ Memoize la concaténation pour éviter les recalculs
+const srcWithCacheBust = useMemo(
+  () => `${src}${src.includes("?") ? "&" : "?"}v=${retryKey}`,
+  [src, retryKey]
+);
   const handleRetry = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     setFailed(false);

@@ -3,6 +3,20 @@
 import { useEffect } from 'react';
 import { useToast } from '@/components/Toast';
 
+// ⭐ Logger structuré (à utiliser dans les composants)
+export const logger = {
+  info: (context: string, data?: Record<string, unknown>) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[${context}]`, data || '');
+    }
+  },
+  warn: (context: string, data?: Record<string, unknown>) => {
+    console.warn(`[${context}]`, data || '');
+  },
+  error: (context: string, data?: Record<string, unknown>) => {
+    console.error(`[${context}]`, data || '');
+  },
+};
 // ⭐ Messages FR uniquement
 const ERROR_MESSAGES: Record<string, string> = {
   // HTTP Status
@@ -70,13 +84,15 @@ export function useGlobalFetch() {
 
 // ⭐ Hook 2 : Fetch manuel avec toast (pour media kit, etc.)
 
+
 export function useApiFetch() {
   const { toast } = useToast();
 
   const fetchWithToast = async (
     url: string,
     options: RequestInit = {},
-    successMessage?: string // ⭐ Nouveau paramètre optionnel
+    successMessage?: string,
+    responseType: 'json' | 'blob' = 'json' // ⭐ Nouveau paramètre
   ) => {
     try {
       const res = await fetch(url, options);
@@ -98,7 +114,7 @@ export function useApiFetch() {
         const duration = res.status === 429 ? 8000 : 5000;
         toast(message, type, duration);
 
-        return { ok: false, status: res.status, data: errData };
+        return { ok: false, status: res.status, data: null };
       }
 
       // ⭐ Toast succès si message fourni
@@ -106,7 +122,11 @@ export function useApiFetch() {
         toast(successMessage, 'success', 3000);
       }
 
-      const data = await res.json().catch(() => null);
+      // ⭐ Retourne le bon type de données
+      const data = responseType === 'blob' 
+        ? await res.blob() 
+        : await res.json().catch(() => null);
+      
       return { ok: true, status: res.status, data };
     } catch (err) {
       toast(ERROR_MESSAGES.network_error, 'error');

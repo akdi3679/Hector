@@ -1,14 +1,17 @@
 // app/api/media-kit/route.ts
 import { NextResponse } from 'next/server';
 import { cloudinaryConfig } from '@/lib/cloudinary-config';
+import { mediaKitConfig } from '@/data/media';
+import { z } from 'zod';
 
 export const revalidate = 3600;
 
 const CLOUD = cloudinaryConfig.cloudName;
-const { filename, downloadName } = cloudinaryConfig.mediaKit;
-
+const { filename, downloadName } = mediaKitConfig;
 const SAFE_FILENAME = /^[a-zA-Z0-9._-]+$/;
-
+const FILENAME_SCHEMA = z.string()
+  .regex(/^[a-zA-Z0-9._-]{1,100}$/, 'Invalid filename')
+  .max(100);
 // Rate limit (5/min)
 const rateLimitMap = new Map<string, { count: number; reset: number }>();
 function rateLimit(ip: string): boolean {
@@ -33,6 +36,11 @@ export async function GET(req: Request) {
   if (!CLOUD) {
     return NextResponse.json({ error: 'config_error' }, { status: 500 });
   }
+  try {
+  FILENAME_SCHEMA.parse(filename);
+} catch {
+  return NextResponse.json({ error: 'config_error' }, { status: 500 });
+}
 
   if (!SAFE_FILENAME.test(filename)) {
     return NextResponse.json({ error: 'config_error' }, { status: 500 });

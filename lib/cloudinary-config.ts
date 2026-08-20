@@ -1,52 +1,9 @@
 // lib/cloudinary-config.ts
 
-// ⭐ Interface explicite avec name optionnel
-export interface MediaKeyConfig {
-  folder: string;
-  name?: string; // ⭐ optionnel
-}
-// lib/cloudinary-config.ts — Ajoute ce helper en bas du fichier
-
-// ⭐ Helper pour récupérer le publicId d'une clé avec fallback sécurisé
-export function getPublicId(key: string): string {
-  const config = cloudinaryConfig.mediaKeys[key];
-  if (!config) {
-    console.warn(`[cloudinary] Unknown media key: ${key}`);
-    return '';
-  }
-  return config.name || '';
-}
 export const cloudinaryConfig = {
   cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'du0frvxjo',
-
-  folders: {
-    branding: 'branding',
-    galerie: 'galerie',
-    moments: 'moments',
-    mediaKit: 'mediakit',
-    siteImg: 'site-img',
-  },
-
-
-mediaKit: {
-  folder: 'mediakit',                    // ⭐ Organisation seulement (pas dans l'URL)
-  filename: 'Media-Kit.pdf',             // ⭐ Exactement comme dans Cloudinary
-  downloadName: 'La-Viree-d-Hector-Media-Kit.pdf',
-},
-
-  // ⭐⭐⭐ Typé explicitement comme Record<string, MediaKeyConfig>
-  mediaKeys: {
-    hero: { folder: 'branding', name: 'hero-campement' },
-    bio: { folder: 'branding', name: 'bio-sophie-marc' },
-    footerOff: { folder: 'branding', name: 'hector-off' },
-    footerOn: { folder: 'branding', name: 'hector-on' },
-    galerie: { folder: 'galerie' },
-    moments: { folder: 'moments' },
-    mediaKit: { folder: 'mediakit', name: 'Media-Kit' },
-  } as Record<string, MediaKeyConfig>, // ⭐ Cast explicite
 };
 
-// ⭐ Helper pour construire les URLs Cloudinary
 interface Opts {
   w?: number;
   h?: number;

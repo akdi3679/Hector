@@ -26,16 +26,26 @@ function setImages(key: string, images: Record<string, string>) {
 }
 
 const fetches = new Map<string, Promise<Record<string, string>>>();
+const emptyKeys = new Set<string>(); // ⭐ Cache des clés sans images
 
 async function fetchImages(key: string): Promise<Record<string, string>> {
   if (store[key]) return store[key];
+  if (emptyKeys.has(key)) return {}; // ⭐ Clé déjà connue comme vide
   if (fetches.has(key)) return fetches.get(key)!;
-
+  
   const promise = fetch(`/api/media?key=${encodeURIComponent(key)}`)
     .then((r) => (r.ok ? r.json() : { images: {} }))
-    .then((d) => {
+        .then((d) => {
       const imgs = (d && d.images && typeof d.images === "object") ? d.images : {};
-      setImages(key, imgs);
+      
+      if (Object.keys(imgs).length === 0) {
+        // ⭐ Cache la clé vide pour 60s (évite refetch)
+        emptyKeys.add(key);
+        setTimeout(() => emptyKeys.delete(key), 60_000);
+      } else {
+        setImages(key, imgs);
+      }
+      
       fetches.delete(key);
       return imgs;
     })

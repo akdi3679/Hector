@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // ⭐ Rate limit global
+// ⭐ Rate limit global
+// Pour production enterprise : migrer vers Upstash Redis ou Vercel KV
 const rateLimitMap = new Map<string, { count: number; reset: number }>();
 const RATE_LIMIT = {
   windowMs: 60_000, // 1 minute
@@ -48,17 +50,21 @@ function checkLimit(
 }
 
 // ⭐ Nettoyage périodique des Maps (évite fuite mémoire)
+// ⭐ Nettoyage des Maps (évite fuite mémoire)
 function cleanupMaps() {
   const now = Date.now();
-  for (const [key, entry] of rateLimitMap) {
-    if (entry.reset < now) rateLimitMap.delete(key);
+  // Nettoyage seulement si plus de 1000 entrées (performance)
+  if (rateLimitMap.size > 1000) {
+    for (const [key, entry] of rateLimitMap) {
+      if (entry.reset < now) rateLimitMap.delete(key);
+    }
   }
-  for (const [key, entry] of sensitiveMap) {
-    if (entry.reset < now) sensitiveMap.delete(key);
+  if (sensitiveMap.size > 1000) {
+    for (const [key, entry] of sensitiveMap) {
+      if (entry.reset < now) sensitiveMap.delete(key);
+    }
   }
 }
-// Nettoyage toutes les 5 minutes
-setInterval(cleanupMaps, 5 * 60_000);
 
 function addSecurityHeaders(response: NextResponse): NextResponse {
   // ⭐ Headers de base
@@ -99,6 +105,7 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
 
 // ⭐⭐⭐ NOM CORRECT : middleware (pas proxy !)
 export function proxy(request: NextRequest) {
+  cleanupMaps(); // ⭐ Nettoyage à chaque requête (pas de setInterval)
   const ip = getClientIp(request);
   const path = request.nextUrl.pathname;
 

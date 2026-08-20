@@ -1,10 +1,11 @@
 // components/Footer.tsx
 "use client";
 import { useState, type MouseEvent } from "react";
-import { brandData, navigation, youtubeChannels, mediaKitUrl } from "@/data/viree";
+
+import { brandData, navigation, youtubeChannels } from "@/data/viree";
 import { useMediaImage } from "@/lib/useMedia";
 import { useApiFetch } from "@/lib/useToastApi";
-
+import { mediaKitUrl } from "@/data/media"; // ⭐ Nouvel import
 export default function Footer() {
   const [on, setOn] = useState(false);
   const [ytOpen, setYtOpen] = useState(false);
@@ -22,6 +23,7 @@ export default function Footer() {
   // ⭐ Gestion du téléchargement media kit avec toast
  // components/Footer.tsx et sections.tsx (BrandsSection)
 
+// components/Footer.tsx et BrandsSection
 const handleMediaKitDownload = async (e: React.MouseEvent) => {
   e.preventDefault();
   e.stopPropagation();
@@ -32,16 +34,21 @@ const handleMediaKitDownload = async (e: React.MouseEvent) => {
     const res = await apiFetch(
       mediaKitUrl,
       {},
-      'Téléchargement du media kit démarré' // ⭐ Message de succès
+      'Téléchargement du media kit démarré',
+      'blob'
     );
-    if (res.ok) {
+
+    if (res.ok && res.data instanceof Blob) {
+      const blobUrl = URL.createObjectURL(res.data);
       const a = document.createElement('a');
-      a.href = mediaKitUrl;
+      a.href = blobUrl;
       a.download = 'La-Viree-d-Hector-Media-Kit.pdf';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
     }
+    // Si !res.ok, le toast est déjà affiché par apiFetch ✅
   } finally {
     setDownloading(false);
   }

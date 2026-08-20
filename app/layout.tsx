@@ -145,13 +145,18 @@ const videosSchema = {
   ],
 };
 
+// ⭐ Stringify une seule fois au module level (pas à chaque render)
+const jsonLdString = JSON.stringify(jsonLd);
+const videosSchemaString = JSON.stringify(videosSchema);
+
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className={`${fraunces.variable} ${archivo.variable} ${caveat.variable}`}>
       <body>
-  <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-  <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(videosSchema) }} />
-   <SiteDataProvider>
+ <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString }} />
+<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: videosSchemaString }} />
+ <SiteDataProvider>
          <ToastProvider>
             <GlobalErrorHandler />
             {children}
