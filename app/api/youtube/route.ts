@@ -27,30 +27,20 @@ const VIDEO_ID_SCHEMA = z
   .regex(/^[a-zA-Z0-9_-]{11}$/, 'Invalid video ID');
 
 // ⭐ Fonction yt sécurisée
-const yt = async (endpoint: string, params: Record<string, string>) => {
-  // Validation selon le type d'endpoint
-  if (endpoint.includes('forHandle')) {
-    HANDLE_SCHEMA.parse(params.forHandle);
-  }
-  if (params.playlistId) {
-    PLAYLIST_SCHEMA.parse(params.playlistId);
-  }
-  if (params.videoId) {
-    VIDEO_ID_SCHEMA.parse(params.videoId);
+
+const SAFE_PATH = /^[a-zA-Z]+(\?[a-zA-Z0-9_=&%.@-]*)?$/;
+
+const yt = async (p: string) => {
+  // ⭐ Vérifie que le chemin est propre (pas de caractères suspects)
+  if (!SAFE_PATH.test(p)) {
+    console.error('[youtube] Invalid path:', p);
+    throw new Error('Invalid YouTube API path');
   }
 
-  const queryString = new URLSearchParams({
-    ...params,
-    key: KEY || '',
-  }).toString();
-
-  const r = await fetch(
-    `https://www.googleapis.com/youtube/v3/${endpoint}?${queryString}`,
-    {
-      next: { revalidate: 3600 },
-      signal: AbortSignal.timeout(10000), // ⭐ Timeout 10s
-    }
-  );
+  const r = await fetch(`https://www.googleapis.com/youtube/v3/${p}`, {
+    next: { revalidate: 3600 },
+    signal: AbortSignal.timeout(10000), // ⭐ Timeout 10s
+  });
 
   if (!r.ok) throw new Error(`YT ${r.status}`);
   return r.json();

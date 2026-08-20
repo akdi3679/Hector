@@ -1,8 +1,14 @@
 // lib/cloudinary-config.ts
+
+// ⭐ Interface explicite avec name optionnel
+export interface MediaKeyConfig {
+  folder: string;
+  name?: string; // ⭐ optionnel
+}
+
 export const cloudinaryConfig = {
   cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'du0frvxjo',
-  
-  // ⭐ Tous les folders au même endroit
+
   folders: {
     branding: 'branding',
     galerie: 'galerie',
@@ -10,29 +16,23 @@ export const cloudinaryConfig = {
     mediaKit: 'mediakit',
     siteImg: 'site-img',
   },
-  
-  // ⭐ Media kit centralisé
+
   mediaKit: {
     folder: 'mediakit',
     filename: 'Media-Kit.pdf',
     downloadName: 'La-Viree-d-Hector-Media-Kit.pdf',
   },
-  
-  // ⭐ Clés sémantiques → résolution serveur
+
+  // ⭐⭐⭐ Typé explicitement comme Record<string, MediaKeyConfig>
   mediaKeys: {
-    // Branding
     hero: { folder: 'branding', name: 'hero-campement' },
     bio: { folder: 'branding', name: 'bio-sophie-marc' },
     footerOff: { folder: 'branding', name: 'hector-off' },
     footerOn: { folder: 'branding', name: 'hector-on' },
-    
-    // Groupes (toutes les images du folder)
     galerie: { folder: 'galerie' },
     moments: { folder: 'moments' },
-    
-    // Media kit
     mediaKit: { folder: 'mediakit', name: 'Media-Kit' },
-  },
+  } as Record<string, MediaKeyConfig>, // ⭐ Cast explicite
 };
 
 // ⭐ Helper pour construire les URLs Cloudinary
