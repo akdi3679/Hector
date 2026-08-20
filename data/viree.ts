@@ -6,6 +6,8 @@ export const brandData = {
   couple: 'Sophie & Jean-Marc',
   truck: 'Hector, notre camion aménagé',
   since: '2021',
+    email: 'contact@lavireedhector.fr',
+
   instagram: { handle: '@lavireedhector', url: 'https://www.instagram.com/lavireedhector/' },
   facebook: { url: 'https://www.facebook.com/lavireedhector/' },
   tiktok: { handle: '@lavireedhector', url: 'https://www.tiktok.com/@lavireedhector' },

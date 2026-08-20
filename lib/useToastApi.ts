@@ -2,6 +2,7 @@
 "use client";
 import { useEffect } from 'react';
 import { useToast } from '@/components/Toast';
+import { API_KEY_HEADER, API_KEY_VALUE } from './api-client';
 
 // ⭐ Logger structuré (à utiliser dans les composants)
 export const logger = {
@@ -95,8 +96,13 @@ export function useApiFetch() {
     responseType: 'json' | 'blob' = 'json' // ⭐ Nouveau paramètre
   ) => {
     try {
-      const res = await fetch(url, options);
-
+const res = await fetch(url, {
+  ...options,
+  headers: {
+    ...options.headers,
+    [API_KEY_HEADER]: API_KEY_VALUE,
+  },
+});
       if (!res.ok) {
         const errData = await res.json().catch(() => ({ error: 'unknown' }));
         const errorCode = errData.error as keyof typeof ERROR_MESSAGES;

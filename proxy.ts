@@ -1,24 +1,13 @@
 // middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { checkRateLimit, RATE_LIMIT_CONFIGS } from '@/lib/rate-limit-local';
 
-// ⭐ Rate limit global
-// ⭐ Rate limit global
-// Pour production enterprise : migrer vers Upstash Redis ou Vercel KV
-const rateLimitMap = new Map<string, { count: number; reset: number }>();
-const RATE_LIMIT = {
-  windowMs: 60_000, // 1 minute
-  maxRequests: 60, // 60 req/min (site a beaucoup d'assets)
-};
+// ⭐ Configuration depuis .env (via security-config)
+import { isAllowedOrigin, isValidClientKey, CLIENT_API_HEADER } from '@/lib/security-config';
 
-// ⭐ Rate limit STRICT pour les endpoints sensibles
-const SENSITIVE_PATHS = ['/api/media-kit', '/api/youtube'];
-const SENSITIVE_LIMIT = {
-  windowMs: 60_000,
-  maxRequests: 10,
-};
-
-const sensitiveMap = new Map<string, { count: number; reset: number }>();
+// ⭐ Endpoints sensibles (rate limit strict)
+const SENSITIVE_PATHS = ['/api/media-kit', '/api/youtube', '/api/health'];
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -28,69 +17,40 @@ function getClientIp(request: NextRequest): string {
   );
 }
 
-function checkLimit(
-  map: Map<string, { count: number; reset: number }>,
-  key: string,
-  limit: { windowMs: number; maxRequests: number }
-): boolean {
-  const now = Date.now();
-  const entry = map.get(key);
+function isValidOrigin(request: NextRequest): boolean {
+  const origin = request.headers.get('origin');
+  const referer = request.headers.get('referer');
 
-  if (!entry || entry.reset < now) {
-    map.set(key, { count: 1, reset: now + limit.windowMs });
-    return true;
-  }
+  if (!origin && !referer) return true;
+  if (origin && isAllowedOrigin(origin)) return true;
 
-  if (entry.count >= limit.maxRequests) {
-    return false;
-  }
-
-  entry.count++;
-  return true;
-}
-
-// ⭐ Nettoyage périodique des Maps (évite fuite mémoire)
-// ⭐ Nettoyage des Maps (évite fuite mémoire)
-function cleanupMaps() {
-  const now = Date.now();
-  // Nettoyage seulement si plus de 1000 entrées (performance)
-  if (rateLimitMap.size > 1000) {
-    for (const [key, entry] of rateLimitMap) {
-      if (entry.reset < now) rateLimitMap.delete(key);
+  if (referer) {
+    try {
+      const refererUrl = new URL(referer);
+      if (isAllowedOrigin(refererUrl.origin)) return true;
+    } catch {
+      return false;
     }
   }
-  if (sensitiveMap.size > 1000) {
-    for (const [key, entry] of sensitiveMap) {
-      if (entry.reset < now) sensitiveMap.delete(key);
-    }
-  }
+
+  return false;
 }
 
 function addSecurityHeaders(response: NextResponse): NextResponse {
-  // ⭐ Headers de base
   response.headers.set('X-DNS-Prefetch-Control', 'on');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-Frame-Options', 'SAMEORIGIN');
   response.headers.set('X-XSS-Protection', '1; mode=block');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-
-  // ⭐ HSTS — force HTTPS pendant 1 an
-  response.headers.set(
-    'Strict-Transport-Security',
-    'max-age=31536000; includeSubDomains; preload'
-  );
-
-  // ⭐ CSP — Content Security Policy
+  response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
   response.headers.set(
     'Content-Security-Policy',
     [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline'",
-      // ⭐ Cloudinary pour les images
       "img-src 'self' data: https://res.cloudinary.com https://i.ytimg.com https://yt3.ggpht.com",
-      // ⭐ YouTube pour les iframes (si utilisé)
       "frame-src 'self' https://www.youtube.com",
       "connect-src 'self' https://res.cloudinary.com",
       "font-src 'self'",
@@ -99,34 +59,58 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
       "form-action 'self'",
     ].join('; ')
   );
-
   return response;
 }
 
-// ⭐⭐⭐ NOM CORRECT : middleware (pas proxy !)
+// ⭐⭐⭐ NOM CORRECT : middleware (PAS proxy !)
 export function proxy(request: NextRequest) {
-  cleanupMaps(); // ⭐ Nettoyage à chaque requête (pas de setInterval)
   const ip = getClientIp(request);
   const path = request.nextUrl.pathname;
+  const isApi = path.startsWith('/api/');
 
-  // ⭐ Rate limit STRICT pour endpoints sensibles
-  const isSensitive = SENSITIVE_PATHS.some((p) => path.startsWith(p));
-  if (isSensitive) {
-    const key = `${ip}:${path}`;
-    if (!checkLimit(sensitiveMap, key, SENSITIVE_LIMIT)) {
+  // ⭐ 1. Vérification de sécurité pour les APIs (UNE SEULE FOIS)
+  if (isApi) {
+    const origin = request.headers.get('origin');
+    const clientKey = request.headers.get(CLIENT_API_HEADER);
+
+    if (!isValidOrigin(request) || !isValidClientKey(clientKey)) {
+      console.warn('[security] Request blocked', {
+        ip,
+        path,
+        origin,
+        userAgent: request.headers.get('user-agent')?.slice(0, 100),
+      });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+  }
+
+  // ⭐ 2. Rate limit (utilise la config centralisée)
+  if (isApi) {
+    const isSensitive = SENSITIVE_PATHS.some((p) => path.startsWith(p));
+    const endpoint = isSensitive ? 'sensitive' : 'global';
+    const { allowed, remaining, resetMs } = checkRateLimit(endpoint, ip);
+
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(Math.ceil(resetMs / 1000)),
+            'X-RateLimit-Remaining': '0',
+          },
+        }
+      );
+    }
+  } else {
+    // Rate limit global pour le site (pages HTML)
+    const { allowed } = checkRateLimit('global', ip);
+    if (!allowed) {
       return NextResponse.json(
         { error: 'Too many requests' },
         { status: 429 }
       );
     }
-  }
-
-  // ⭐ Rate limit global
-  if (!checkLimit(rateLimitMap, ip, RATE_LIMIT)) {
-    return NextResponse.json(
-      { error: 'Too many requests' },
-      { status: 429 }
-    );
   }
 
   const response = NextResponse.next();
@@ -135,13 +119,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match toutes les routes SAUF :
-     * - _next/static (assets)
-     * - _next/image (optimisation)
-     * - favicon.ico
-     * - images (png, jpg, etc.)
-     */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
   ],
 };

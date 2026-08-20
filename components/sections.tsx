@@ -421,26 +421,32 @@ const handleMediaKitDownload = async (e: React.MouseEvent) => {
               </div>
             </Reveal>
 
-            <Reveal delay={160}>
-              <div className="rounded-2xl bg-sun p-7 text-ink">
-                <p className="hand text-3xl">parlons de votre projet</p>
-                <p className="mt-2 text-sm leading-relaxed text-ink/80">
-                  Le media kit (audiences détaillées, démographie, exemples de vidéos, tarifs) est envoyé gratuitement sur demande.
-                </p>
-                <div className="mt-6 flex flex-wrap gap-3">
-                  {/* ⭐ Bouton media kit avec gestion d'erreur */}
-                  <button
-                    type="button"
-                    onClick={handleMediaKitDownload}
-                    disabled={downloading}
-                    className="btn btn-ink disabled:opacity-50"
-                  >
-                    {downloading ? "Téléchargement..." : "Demander le media kit"}
-                  </button>
-                  <YouTubeDropdown variant="ghost" />
-                </div>
-              </div>
-            </Reveal>
+           <Reveal delay={160}>
+  <div className="rounded-2xl bg-sun p-7 text-ink">
+    <p className="hand text-3xl">parlons de votre projet</p>
+    <p className="mt-2 text-sm leading-relaxed text-ink/80">
+      Le media kit (audiences détaillées, démographie, exemples de vidéos, tarifs) est envoyé gratuitement sur demande.
+    </p>
+    <div className="mt-6 flex flex-wrap gap-3">
+      <button
+        type="button"
+        onClick={handleMediaKitDownload}
+        disabled={downloading}
+        className="btn btn-ink disabled:opacity-50"
+      >
+        {downloading ? "Téléchargement..." : "Demander le media kit"}
+      </button>
+      {/* ⭐ Bouton email */}
+      <a
+        href={`mailto:${brandData.email}?subject=Partenariat avec La Virée d'Hector`}
+        className="btn btn-ghost"
+      >
+        ✉️ Nous contacter
+      </a>
+      <YouTubeDropdown variant="ghost" />
+    </div>
+  </div>
+</Reveal>
           </div>
         </div>
       </div>

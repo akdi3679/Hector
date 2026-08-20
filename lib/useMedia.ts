@@ -1,7 +1,7 @@
 // lib/useMedia.ts
 "use client";
 import { useEffect, useState } from "react";
-
+import { API_KEY_HEADER, getApiClientKey } from '@/lib/api-client';
 type MediaStore = Record<string, Record<string, string>>;
 
 const store: MediaStore = {};
@@ -33,8 +33,12 @@ async function fetchImages(key: string): Promise<Record<string, string>> {
   if (emptyKeys.has(key)) return {}; // ⭐ Clé déjà connue comme vide
   if (fetches.has(key)) return fetches.get(key)!;
   
-  const promise = fetch(`/api/media?key=${encodeURIComponent(key)}`)
-    .then((r) => (r.ok ? r.json() : { images: {} }))
+  const promise = fetch(`/api/media?key=${encodeURIComponent(key)}`, {
+  headers: {
+    [API_KEY_HEADER]: getApiClientKey(),
+  },
+})
+  .then((r) => (r.ok ? r.json() : { images: {} }))
         .then((d) => {
       const imgs = (d && d.images && typeof d.images === "object") ? d.images : {};
       

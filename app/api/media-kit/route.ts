@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { cloudinaryConfig } from '@/lib/cloudinary-config';
 import { mediaKitConfig } from '@/data/media';
 import { z } from 'zod';
+import { withRateLimit } from '@/lib/rate-limit-local';
 
 export const revalidate = 3600;
 
@@ -12,23 +13,12 @@ const SAFE_FILENAME = /^[a-zA-Z0-9._-]+$/;
 const FILENAME_SCHEMA = z.string()
   .regex(/^[a-zA-Z0-9._-]{1,100}$/, 'Invalid filename')
   .max(100);
-// Rate limit (5/min)
-const rateLimitMap = new Map<string, { count: number; reset: number }>();
-function rateLimit(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(ip);
-  if (!entry || entry.reset < now) {
-    rateLimitMap.set(ip, { count: 1, reset: now + 60_000 });
-    return true;
-  }
-  if (entry.count >= 5) return false;
-  entry.count++;
-  return true;
-}
+
 
 export async function GET(req: Request) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown';
-
+ const blocked = withRateLimit('media-kit', ip);
+  if (blocked) return blocked;
   if (!rateLimit(ip)) {
     return NextResponse.json({ error: 'too_many_requests' }, { status: 429 });
   }

@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { youtubeChannels, fallbackLatestVideos, type YoutubeChannel } from '@/data/viree';
 import { curatedReviews } from '@/data/reviews';
 import { z } from 'zod';
+import { withRateLimit } from '@/lib/rate-limit-local';
 
 // ⭐ Types YouTube API
 interface YouTubePlaylistItem {
@@ -67,7 +68,6 @@ const YT = {
   MAX_VIDEO_DESCRIPTION_LENGTH: 150,
   MAX_LIKES_CAP: 999999,
   MIN_COMMENT_LENGTH: 10,
-  RATE_LIMIT_PER_MINUTE: 5,          // ⭐ AJOUTÉ
 } as const;
 
 export const revalidate = 3600;
@@ -224,22 +224,12 @@ function shuffle<T>(arr: T[]): T[] {
   return copy;
 }
 
-// ⭐ Rate limit
-const rateLimitMap = new Map<string, { count: number; reset: number }>();
-function rateLimit(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(ip);
-  if (!entry || entry.reset < now) {
-    rateLimitMap.set(ip, { count: 1, reset: now + 60_000 });
-    return true;
-  }
-  if (entry.count >= YT.RATE_LIMIT_PER_MINUTE) return false;
-  entry.count++;
-  return true;
-}
 
 export async function GET(req: Request) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown';
+  const blocked = withRateLimit('youtube', ip);
+  if (blocked) return blocked;
+
   if (!rateLimit(ip)) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
   }

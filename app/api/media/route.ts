@@ -1,8 +1,9 @@
-// app/api/media/route.ts
+// app/api/media/route.ts — En haut du fichier
 import { NextResponse } from 'next/server';
 import { cloudinaryConfig } from '@/lib/cloudinary-config';
 import { mediaKeys } from '@/data/media';
 import { z } from 'zod';
+import { withRateLimit } from '@/lib/rate-limit-local';
 
 // ⭐ Retry helper pour résilience
 async function fetchWithRetry(
@@ -44,22 +45,13 @@ const MEDIA_KEYS = mediaKeys;
 const MEDIA_KEY_SCHEMA = z.string()
   .regex(/^[a-zA-Z0-9_-]{1,50}$/, 'Invalid key format')
   .max(50);
-// Rate limit
-const rateLimitMap = new Map<string, { count: number; reset: number }>();
-function rateLimit(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(ip);
-  if (!entry || entry.reset < now) {
-    rateLimitMap.set(ip, { count: 1, reset: now + 60_000 });
-    return true;
-  }
-  if (entry.count >= 20) return false;
-  entry.count++;
-  return true;
-}
+
 
 export async function GET(req: Request) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown';
+  const blocked = withRateLimit('media', ip);
+  if (blocked) return blocked;
+
   if (!rateLimit(ip)) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
   }

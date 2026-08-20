@@ -134,8 +134,12 @@ const handleMediaKitDownload = async (e: React.MouseEvent) => {
             Instagram {brandData.instagram.handle}
           </a>
           <a href={brandData.facebook.url} target="_blank" rel="noopener noreferrer" className="hover:text-sun">
-            Facebook
-          </a>
+  Facebook
+</a>
+{/* ⭐ Email de contact */}
+<a href={`mailto:${brandData.email}`} className="hover:text-sun">
+  ✉️ {brandData.email}
+</a>
           {/* ⭐ Bouton media kit avec gestion d'erreur */}
           <button
             type="button"
@@ -148,12 +152,14 @@ const handleMediaKitDownload = async (e: React.MouseEvent) => {
         </div>
       </div>
 
-      <p className="relative z-10 border-t border-paper/10 py-6 text-center text-xs text-paper/50">
-        © {new Date().getFullYear()} La Virée d'Hector ·{" "}
-        <a href="/mentions-legales" className="hover:text-sun">
-          Mentions légales
-        </a>
-      </p>
+      // components/Footer.tsx — Section du bas
+<p className="relative z-10 border-t border-paper/10 py-6 text-center text-xs text-paper/50">
+  © {new Date().getFullYear()} La Virée d'Hector ·{' '}
+  <a href="/mentions-legales" className="hover:text-sun">Mentions légales</a> ·{' '}
+  <a href="/politique-confidentialite" className="hover:text-sun">Confidentialité</a> ·{' '}
+  <a href="/cgu" className="hover:text-sun">CGU</a> ·{' '}
+  <a href="/politique-cookies" className="hover:text-sun">Cookies</a>
+</p>
     </footer>
   );
 }
