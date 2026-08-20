@@ -144,10 +144,7 @@ const videosSchema = {
     },
   ],
 };
-function GlobalErrorHandler() {
-  useGlobalFetch();
-  return null;
-}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className={`${fraunces.variable} ${archivo.variable} ${caveat.variable}`}>
