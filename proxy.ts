@@ -102,7 +102,7 @@ const { allowed, remaining, resetMs } = await checkRateLimitRedis(endpoint, ip);
     }
   } else {
     // Rate limit global pour le site (pages HTML)
-    const { allowed } = checkRateLimit('global', ip);
+    const { allowed } = checkRateLimitRedis('global', ip);
     if (!allowed) {
       return NextResponse.json(
         { error: 'Too many requests' },
