@@ -1,8 +1,9 @@
-// lib/useGlobalFetch.ts
+// lib/useToastApi.ts
 "use client";
 import { useEffect } from 'react';
 import { useToast } from '@/components/Toast';
 
+// ⭐ Messages FR uniquement
 const ERROR_MESSAGES: Record<string, string> = {
   // HTTP Status
   '429': 'Trop de requêtes. Veuillez réessayer dans une minute.',
@@ -26,11 +27,11 @@ const ERROR_MESSAGES: Record<string, string> = {
   'timeout': 'La requête a expiré. Réessayez plus tard.',
 };
 
+// ⭐ Hook 1 : Interception globale des erreurs réseau
 export function useGlobalFetch() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // ⭐ Intercepte les erreurs réseau globales (fetch + XHR)
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       const reason = event.reason;
 
@@ -47,9 +48,8 @@ export function useGlobalFetch() {
       }
     };
 
-    // ⭐ Détection offline/online
     const handleOffline = () => {
-      toast(ERROR_MESSAGES.offline, 'error', 0); // Durée 0 = pas d'auto-close
+      toast(ERROR_MESSAGES.offline, 'error', 0);
     };
 
     const handleOnline = () => {
@@ -66,4 +66,48 @@ export function useGlobalFetch() {
       window.removeEventListener('online', handleOnline);
     };
   }, [toast]);
+}
+
+// ⭐ Hook 2 : Fetch manuel avec toast (pour media kit, etc.)
+export function useApiFetch() {
+  const { toast } = useToast();
+
+  const fetchWithToast = async (url: string, options: RequestInit = {}) => {
+    try {
+      const res = await fetch(url, options);
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({ error: 'unknown' }));
+        const errorCode = errData.error as keyof typeof ERROR_MESSAGES;
+
+        let message: string;
+        if (errorCode && ERROR_MESSAGES[errorCode]) {
+          message = ERROR_MESSAGES[errorCode];
+        } else if (res.status === 429) {
+          message = ERROR_MESSAGES['429'];
+        } else if (res.status === 400) {
+          message = ERROR_MESSAGES['400'];
+        } else if (res.status === 404) {
+          message = ERROR_MESSAGES['404'];
+        } else {
+          message = ERROR_MESSAGES['500'];
+        }
+
+        const type = res.status === 429 ? 'warning' : 'error';
+        const duration = res.status === 429 ? 8000 : 5000;
+
+        toast(message, type, duration);
+        return { ok: false, status: res.status, data: errData };
+      }
+
+      const data = await res.json().catch(() => null);
+      return { ok: true, status: res.status, data };
+    } catch (err) {
+      console.error('[api] Network error:', err);
+      toast(ERROR_MESSAGES.network_error, 'error');
+      return { ok: false, status: 0, data: null };
+    }
+  };
+
+  return fetchWithToast;
 }

@@ -148,17 +148,18 @@ function GlobalErrorHandler() {
   useGlobalFetch();
   return null;
 }
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className={`${fraunces.variable} ${archivo.variable} ${caveat.variable}`}>
       <body>
   <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
   <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(videosSchema) }} />
-  <SiteDataProvider>        <ToastProvider>
-    <GlobalErrorHandler /> 
-{children}        </ToastProvider>
-</SiteDataProvider>
+   <SiteDataProvider>
+          <ToastProvider>
+            <GlobalErrorHandler />  {/* ⭐ UNE SEULE FOIS ICI */}
+            {children}
+          </ToastProvider>
+        </SiteDataProvider>
 </body>
     </html>
   );

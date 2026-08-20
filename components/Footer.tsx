@@ -1,25 +1,50 @@
+// components/Footer.tsx
 "use client";
 import { useState, type MouseEvent } from "react";
 import { brandData, navigation, youtubeChannels, mediaKitUrl } from "@/data/viree";
 import { useMediaImage } from "@/lib/useMedia";
+import { useApiFetch } from "@/lib/useToastApi";
 
 export default function Footer() {
   const [on, setOn] = useState(false);
   const [ytOpen, setYtOpen] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
-  // ⭐ Hooks en haut (avant tout return/state logic)
   const footerOffUrl = useMediaImage("footerOff");
   const footerOnUrl = useMediaImage("footerOn");
+  const apiFetch = useApiFetch();
 
   const toggle = (e: MouseEvent) => {
     if ((e.target as HTMLElement).closest("a, button, input")) return;
     setOn(!on);
   };
 
+  // ⭐ Gestion du téléchargement media kit avec toast
+  const handleMediaKitDownload = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (downloading) return;
+
+    setDownloading(true);
+    try {
+      const res = await apiFetch(mediaKitUrl);
+      if (res.ok) {
+        // Déclenche le téléchargement réel via un lien caché
+        const a = document.createElement("a");
+        a.href = mediaKitUrl;
+        a.download = "La-Viree-d-Hector-Media-Kit.pdf";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <footer className="relative overflow-hidden bg-ink text-paper" onClick={toggle}>
       <div className="relative h-[300px] w-full sm:h-[400px] md:h-[520px]" aria-hidden="true">
-        {/* Image OFF (toujours visible) */}
         {footerOffUrl ? (
           <img
             src={footerOffUrl}
@@ -30,7 +55,6 @@ export default function Footer() {
           <div className="absolute inset-0 bg-gradient-to-br from-ink to-ink/80 animate-pulse" />
         )}
 
-        {/* Image ON (overlay au toggle) */}
         {footerOnUrl && (
           <img
             src={footerOnUrl}
@@ -41,7 +65,6 @@ export default function Footer() {
           />
         )}
 
-        {/* Dégradé */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
@@ -101,9 +124,15 @@ export default function Footer() {
           <a href={brandData.facebook.url} target="_blank" rel="noopener noreferrer" className="hover:text-sun">
             Facebook
           </a>
-          <a href={mediaKitUrl} download="La-Viree-d-Hector-Media-Kit.pdf" className="hover:text-sun">
-            Media kit (PDF)
-          </a>
+          {/* ⭐ Bouton media kit avec gestion d'erreur */}
+          <button
+            type="button"
+            onClick={handleMediaKitDownload}
+            disabled={downloading}
+            className="hover:text-sun disabled:opacity-50 text-left"
+          >
+            {downloading ? "Téléchargement..." : "Media kit (PDF)"}
+          </button>
         </div>
       </div>
 

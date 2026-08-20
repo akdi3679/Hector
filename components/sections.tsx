@@ -8,6 +8,7 @@ import { Globe, ChevronLeft } from 'lucide-react';
 import { useMediaImage } from "@/lib/useMedia";
 import CloudinaryImage from "./CloudinaryImage";
 import { cloudinaryConfig , getPublicId  } from "@/lib/cloudinary-config";
+import { useApiFetch } from "@/lib/useToastApi";
 
 import { YoutubeIcon, InstagramIcon, FacebookIcon, TiktokIcon } from './SocialIcons';
 import {
@@ -325,7 +326,31 @@ export function MaterialSection() {
     </section>
   );
 }
+
 export function BrandsSection() {
+  const [downloading, setDownloading] = useState(false);
+  const apiFetch = useApiFetch();
+
+  const handleMediaKitDownload = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (downloading) return;
+
+    setDownloading(true);
+    try {
+      const res = await apiFetch(mediaKitUrl);
+      if (res.ok) {
+        const a = document.createElement("a");
+        a.href = mediaKitUrl;
+        a.download = "La-Viree-d-Hector-Media-Kit.pdf";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <section id="marques" className="bg-ink py-20 text-paper md:py-28">
       <div className="mx-auto w-full max-w-[1280px] px-5 md:px-8">
@@ -346,7 +371,6 @@ export function BrandsSection() {
               ))}
             </div>
 
-            {/* NOUVEAU : comment ça se passe */}
             <h3 className="mb-4 mt-12 font-display text-2xl font-semibold text-sun">Comment ça se passe</h3>
             <div className="space-y-3">
               {['Brief & envoi du produit', 'Test réel de plusieurs semaines', 'Contenu honnête publié sur la bonne chaîne', 'Chiffres & rapport post-campagne'].map((s, i) => (
@@ -369,23 +393,21 @@ export function BrandsSection() {
               <p className="mt-3 text-xs text-paper/50">Collaborations réelles — vérifiables sur nos chaînes.</p>
             </Reveal>
 
-            {/* NOUVEAU : audience snapshot */}
-           <Reveal delay={80}>
-  <div className="ticket !border-paper/25 !bg-paper/5 p-6">
-    <p className="label mb-4 text-paper/60">Audience cumulée</p>
-    <div className="grid grid-cols-2 gap-4 text-center">
-      {brandsAudience.map((item) => (
-        <div key={item.label}>
-          <p className="font-display text-2xl font-semibold text-sun">{item.value}</p>
-          <p className="text-xs text-paper/60">{item.label}</p>
-        </div>
-      ))}
-    </div>
-    <p className="mt-4 text-xs text-paper/50">Détails démographie & engagement dans le media kit.</p>
-  </div>
-</Reveal>
+            <Reveal delay={80}>
+              <div className="ticket !border-paper/25 !bg-paper/5 p-6">
+                <p className="label mb-4 text-paper/60">Audience cumulée</p>
+                <div className="grid grid-cols-2 gap-4 text-center">
+                  {brandsAudience.map((item) => (
+                    <div key={item.label}>
+                      <p className="font-display text-2xl font-semibold text-sun">{item.value}</p>
+                      <p className="text-xs text-paper/60">{item.label}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-4 text-xs text-paper/50">Détails démographie & engagement dans le media kit.</p>
+              </div>
+            </Reveal>
 
-            {/* MEDIA KIT — emplacement professionnel */}
             <Reveal delay={160}>
               <div className="rounded-2xl bg-sun p-7 text-ink">
                 <p className="hand text-3xl">parlons de votre projet</p>
@@ -393,9 +415,15 @@ export function BrandsSection() {
                   Le media kit (audiences détaillées, démographie, exemples de vidéos, tarifs) est envoyé gratuitement sur demande.
                 </p>
                 <div className="mt-6 flex flex-wrap gap-3">
-                  <a href={mediaKitUrl} download="La-Viree-d-Hector-Media-Kit.pdf" className="btn btn-ink">
-  Demander le media kit
-</a>
+                  {/* ⭐ Bouton media kit avec gestion d'erreur */}
+                  <button
+                    type="button"
+                    onClick={handleMediaKitDownload}
+                    disabled={downloading}
+                    className="btn btn-ink disabled:opacity-50"
+                  >
+                    {downloading ? "Téléchargement..." : "Demander le media kit"}
+                  </button>
                   <YouTubeDropdown variant="ghost" />
                 </div>
               </div>
@@ -406,7 +434,6 @@ export function BrandsSection() {
     </section>
   );
 }
-
 
 const SOURCE_LABELS: Record<string, { label: string; color: string }> = {
   youtube: { label: 'YouTube', color: 'bg-red/15 text-red' },
