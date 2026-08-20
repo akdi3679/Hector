@@ -5,7 +5,17 @@ export interface MediaKeyConfig {
   folder: string;
   name?: string; // ⭐ optionnel
 }
+// lib/cloudinary-config.ts — Ajoute ce helper en bas du fichier
 
+// ⭐ Helper pour récupérer le publicId d'une clé avec fallback sécurisé
+export function getPublicId(key: string): string {
+  const config = cloudinaryConfig.mediaKeys[key];
+  if (!config) {
+    console.warn(`[cloudinary] Unknown media key: ${key}`);
+    return '';
+  }
+  return config.name || '';
+}
 export const cloudinaryConfig = {
   cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'du0frvxjo',
 

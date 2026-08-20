@@ -7,7 +7,8 @@ import { useSiteData } from '@/lib/site-data';
 import { Globe, ChevronLeft } from 'lucide-react';
 import { useMediaImage } from "@/lib/useMedia";
 import CloudinaryImage from "./CloudinaryImage";
-import { cloudinaryConfig } from "@/lib/cloudinary-config";
+import { cloudinaryConfig , getPublicId  } from "@/lib/cloudinary-config";
+
 import { YoutubeIcon, InstagramIcon, FacebookIcon, TiktokIcon } from './SocialIcons';
 import {
   brandData, navigation, storyData, platforms, formats, collabs,
@@ -57,18 +58,18 @@ export function Hero() {
         <div className="relative md:col-span-5">
           <div className="polaroid polaroid-float rotate-2">
             <div className="card-img aspect-[4/5] overflow-hidden">
-              {heroUrl ? (
-                <CloudinaryImage
-                  publicId={cloudinaryConfig.mediaKeys.hero.name}
-                  alt="Hector, notre maison"
-                  w={1200}
-                  ar="4:5"
-                  priority={true}
-                  className="h-full w-full"
-                />
-              ) : (
-                <div className="h-full w-full bg-gradient-to-br from-ink/10 to-ink/5 animate-pulse" />
-              )}
+           {heroUrl ? (
+  <CloudinaryImage
+    publicId={getPublicId('hero')}
+    alt="Hector, notre maison"
+    w={1200}
+    ar="4:5"
+    priority={true}
+    className="h-full w-full"
+  />
+) : (
+  <div className="h-full w-full bg-gradient-to-br from-ink/10 to-ink/5 animate-pulse" />
+)}
             </div>
             <p className="hand pt-3 text-center text-2xl">Hector, notre maison</p>
           </div>
@@ -192,18 +193,18 @@ export function StorySection() {
       <Reveal>
         <div className="polaroid -rotate-1">
           <div className="card-img aspect-[4/5] overflow-hidden">
-            {bioUrl ? (
-              <CloudinaryImage
-                publicId={cloudinaryConfig.mediaKeys.bio.name}
-                alt="Sophie et Jean-Marc"
-                w={900}
-                ar="4:5"
-                priority={false}
-                className="h-full w-full"
-              />
-            ) : (
-              <div className="h-full w-full bg-gradient-to-br from-ink/10 to-ink/5 animate-pulse" />
-            )}
+           {bioUrl ? (
+  <CloudinaryImage
+    publicId={getPublicId('bio')}
+    alt="Sophie et Jean-Marc"
+    w={900}
+    ar="4:5"
+    priority={false}
+    className="h-full w-full"
+  />
+) : (
+  <div className="h-full w-full bg-gradient-to-br from-ink/10 to-ink/5 animate-pulse" />
+)}
           </div>
           <p className="hand pt-3 text-center text-2xl">nous, en vrai</p>
         </div>
