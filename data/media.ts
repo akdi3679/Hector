@@ -1,5 +1,9 @@
 // data/media.ts
-
+// ⭐ Interface explicite avec name optionnel
+export interface MediaKeyConfig {
+  folder: string;
+  name?: string;
+}
 // ⭐ Toutes les images de marque du site
 export const brandImages = {
   hero: {
@@ -20,8 +24,9 @@ export const brandImages = {
   },
 };
 
-// ⭐ Clés pour /api/media (whitelist)
-export const mediaKeys = {
+
+// ⭐ Clés pour /api/media (whitelist) — typé explicitement
+export const mediaKeys: Record<string, MediaKeyConfig> = {
   hero: { folder: 'branding', name: 'hero-campement' },
   bio: { folder: 'branding', name: 'bio-sophie-marc' },
   footerOff: { folder: 'branding', name: 'hector-off' },
@@ -29,7 +34,7 @@ export const mediaKeys = {
   galerie: { folder: 'galerie' },
   moments: { folder: 'moments' },
   mediaKit: { folder: 'mediakit', name: 'Media-Kit' },
-} as const;
+};
 
 // ⭐ Clés pour les galeries dynamiques (utilisées par MediaStrip)
 export const galleryKeys = {
