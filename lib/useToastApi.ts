@@ -69,10 +69,15 @@ export function useGlobalFetch() {
 }
 
 // ⭐ Hook 2 : Fetch manuel avec toast (pour media kit, etc.)
+
 export function useApiFetch() {
   const { toast } = useToast();
 
-  const fetchWithToast = async (url: string, options: RequestInit = {}) => {
+  const fetchWithToast = async (
+    url: string,
+    options: RequestInit = {},
+    successMessage?: string // ⭐ Nouveau paramètre optionnel
+  ) => {
     try {
       const res = await fetch(url, options);
 
@@ -85,25 +90,25 @@ export function useApiFetch() {
           message = ERROR_MESSAGES[errorCode];
         } else if (res.status === 429) {
           message = ERROR_MESSAGES['429'];
-        } else if (res.status === 400) {
-          message = ERROR_MESSAGES['400'];
-        } else if (res.status === 404) {
-          message = ERROR_MESSAGES['404'];
         } else {
           message = ERROR_MESSAGES['500'];
         }
 
         const type = res.status === 429 ? 'warning' : 'error';
         const duration = res.status === 429 ? 8000 : 5000;
-
         toast(message, type, duration);
+
         return { ok: false, status: res.status, data: errData };
+      }
+
+      // ⭐ Toast succès si message fourni
+      if (successMessage) {
+        toast(successMessage, 'success', 3000);
       }
 
       const data = await res.json().catch(() => null);
       return { ok: true, status: res.status, data };
     } catch (err) {
-      console.error('[api] Network error:', err);
       toast(ERROR_MESSAGES.network_error, 'error');
       return { ok: false, status: 0, data: null };
     }

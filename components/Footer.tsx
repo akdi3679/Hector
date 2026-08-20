@@ -20,27 +20,32 @@ export default function Footer() {
   };
 
   // ⭐ Gestion du téléchargement media kit avec toast
-  const handleMediaKitDownload = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (downloading) return;
+ // components/Footer.tsx et sections.tsx (BrandsSection)
 
-    setDownloading(true);
-    try {
-      const res = await apiFetch(mediaKitUrl);
-      if (res.ok) {
-        // Déclenche le téléchargement réel via un lien caché
-        const a = document.createElement("a");
-        a.href = mediaKitUrl;
-        a.download = "La-Viree-d-Hector-Media-Kit.pdf";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      }
-    } finally {
-      setDownloading(false);
+const handleMediaKitDownload = async (e: React.MouseEvent) => {
+  e.preventDefault();
+  e.stopPropagation();
+  if (downloading) return;
+
+  setDownloading(true);
+  try {
+    const res = await apiFetch(
+      mediaKitUrl,
+      {},
+      'Téléchargement du media kit démarré' // ⭐ Message de succès
+    );
+    if (res.ok) {
+      const a = document.createElement('a');
+      a.href = mediaKitUrl;
+      a.download = 'La-Viree-d-Hector-Media-Kit.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     }
-  };
+  } finally {
+    setDownloading(false);
+  }
+};
 
   return (
     <footer className="relative overflow-hidden bg-ink text-paper" onClick={toggle}>

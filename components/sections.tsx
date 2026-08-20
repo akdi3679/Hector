@@ -331,25 +331,31 @@ export function BrandsSection() {
   const [downloading, setDownloading] = useState(false);
   const apiFetch = useApiFetch();
 
-  const handleMediaKitDownload = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (downloading) return;
 
-    setDownloading(true);
-    try {
-      const res = await apiFetch(mediaKitUrl);
-      if (res.ok) {
-        const a = document.createElement("a");
-        a.href = mediaKitUrl;
-        a.download = "La-Viree-d-Hector-Media-Kit.pdf";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      }
-    } finally {
-      setDownloading(false);
+const handleMediaKitDownload = async (e: React.MouseEvent) => {
+  e.preventDefault();
+  e.stopPropagation();
+  if (downloading) return;
+
+  setDownloading(true);
+  try {
+    const res = await apiFetch(
+      mediaKitUrl,
+      {},
+      'Téléchargement du media kit démarré' // ⭐ Message de succès
+    );
+    if (res.ok) {
+      const a = document.createElement('a');
+      a.href = mediaKitUrl;
+      a.download = 'La-Viree-d-Hector-Media-Kit.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     }
-  };
+  } finally {
+    setDownloading(false);
+  }
+};
 
   return (
     <section id="marques" className="bg-ink py-20 text-paper md:py-28">
