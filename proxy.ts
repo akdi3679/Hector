@@ -1,41 +1,7 @@
 // middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { checkRateLimitRedis, RATE_LIMIT_CONFIGS } from '@/lib/rate-limit-redis';
-// ⭐ Configuration depuis .env (via security-config)
-import { isAllowedOrigin, isValidClientKey, CLIENT_API_HEADER } from '@/lib/security-config';
-
-
-
-
-// ⭐ Endpoints sensibles (rate limit strict)
-const SENSITIVE_PATHS = ['/api/media-kit', '/api/youtube', '/api/health'];
-function getClientIp(request: NextRequest): string {
-  return (
-    request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
-    request.headers.get('x-real-ip') ||
-    'unknown'
-  );
-}
-
-function isValidOrigin(request: NextRequest): boolean {
-  const origin = request.headers.get('origin');
-  const referer = request.headers.get('referer');
-
-  if (!origin && !referer) return true;
-  if (origin && isAllowedOrigin(origin)) return true;
-
-  if (referer) {
-    try {
-      const refererUrl = new URL(referer);
-      if (isAllowedOrigin(refererUrl.origin)) return true;
-    } catch {
-      return false;
-    }
-  }
-
-  return false;
-}
+import { CLIENT_API_HEADER, isAllowedOrigin, isValidClientKey } from '@/lib/security-config';
 
 function addSecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set('X-DNS-Prefetch-Control', 'on');
@@ -63,72 +29,19 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
   return response;
 }
 
-// ⭐⭐⭐ NOM CORRECT : middleware (PAS proxy !)
-export async function proxy(request: NextRequest) {
-  const ip = getClientIp(request);
+export function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isApi = path.startsWith('/api/');
-// middleware.ts — Remplace les 2 blocs par CE SEUL BLOC
-// (à placer juste après const path = request.nextUrl.pathname;)
 
-// ⭐ Gestion spéciale de la page rate-limited
-if (path === '/rate-limited') {
-  // Always serve the page — it's already cached, so no server load risk
-  const response = NextResponse.next();
-  response.headers.set(
-    'Cache-Control',
-    'public, max-age=300, stale-while-revalidate=60'
-  );
-  return addSecurityHeaders(response);
-}
-  // ⭐ 1. Vérification de sécurité pour les APIs (UNE SEULE FOIS)
+  // ⭐ Only protection: custom header on API requests
   if (isApi) {
     const origin = request.headers.get('origin');
     const clientKey = request.headers.get(CLIENT_API_HEADER);
 
-    if (!isValidOrigin(request) || !isValidClientKey(clientKey)) {
-      console.warn('[security] Request blocked', {
-        ip,
-        path,
-        origin,
-        userAgent: request.headers.get('user-agent')?.slice(0, 100),
-      });
+    if (!isAllowedOrigin(origin) || !isValidClientKey(clientKey)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
   }
-
-  // ⭐ 2. Rate limit (utilise la config centralisée)
-  if (isApi) {
-    const isSensitive = SENSITIVE_PATHS.some((p) => path.startsWith(p));
-    const endpoint = isSensitive ? 'sensitive' : 'global';
-const { allowed, remaining, resetMs } = await checkRateLimitRedis(endpoint, ip);
-
-    if (!allowed) {
-      return NextResponse.json(
-        { error: 'Too many requests' },
-        {
-          status: 429,
-          headers: {
-            'Retry-After': String(Math.ceil(resetMs / 1000)),
-            'X-RateLimit-Remaining': '0',
-          },
-        }
-      );
-    }
-} else {
-  // Rate limit global pour le site (pages HTML)
-  const { allowed, resetMs } = await checkRateLimitRedis('global', ip);
-  if (!allowed) {
-    const retrySeconds = Math.ceil(resetMs / 1000);
-    const redirectUrl = new URL(`/rate-limited?retry=${retrySeconds}`, request.url);
-    const response = NextResponse.redirect(redirectUrl, 302);
-    
-    // ⭐ Cache la redirection 5 minutes côté navigateur
-    response.headers.set('Cache-Control', 'public, max-age=300');
-    
-    return response;
-  }
-}
 
   const response = NextResponse.next();
   return addSecurityHeaders(response);

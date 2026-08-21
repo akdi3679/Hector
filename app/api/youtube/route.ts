@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 import { youtubeChannels, fallbackLatestVideos, type YoutubeChannel } from '@/data/viree';
 import { curatedReviews } from '@/data/reviews';
 import { z } from 'zod';
-import { withRateLimitRedis } from '@/lib/rate-limit-redis';
 
 // ⭐ Types YouTube API
 interface YouTubePlaylistItem {
@@ -226,7 +225,6 @@ function shuffle<T>(arr: T[]): T[] {
 
 
 export async function GET(req: Request) {
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown';
  
   if (!KEY) {
     const fallbackReviews = shuffle(base.reviews.filter(isValidReview))
