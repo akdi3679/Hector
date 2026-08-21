@@ -73,15 +73,12 @@ export async function proxy(request: NextRequest) {
 
 // ⭐ Gestion spéciale de la page rate-limited
 if (path === '/rate-limited') {
-  // Rate limit strict sur la page elle-même (5 req/min)
-  const { allowed } = await checkRateLimitRedis('sensitive', ip);
-  if (!allowed) {
-    return new NextResponse('Too many requests', { status: 429 });
-  }
-  
-  // Laisse passer + ajoute Cache-Control
+  // Always serve the page — it's already cached, so no server load risk
   const response = NextResponse.next();
-  response.headers.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
+  response.headers.set(
+    'Cache-Control',
+    'public, max-age=300, stale-while-revalidate=60'
+  );
   return addSecurityHeaders(response);
 }
   // ⭐ 1. Vérification de sécurité pour les APIs (UNE SEULE FOIS)
