@@ -227,9 +227,7 @@ function shuffle<T>(arr: T[]): T[] {
 
 export async function GET(req: Request) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown';
- const blocked = await withRateLimitRedis('youtube', ip);
-if (blocked) return blocked;
-
+ 
   if (!KEY) {
     const fallbackReviews = shuffle(base.reviews.filter(isValidReview))
       .slice(0, YT.MAX_REVIEWS_TOTAL);
@@ -297,13 +295,16 @@ if (blocked) return blocked;
     const allReviews = [...ytReviews, ...curatedReviews].filter(isValidReview);
     const reviews = shuffle(allReviews).slice(0, YT.MAX_REVIEWS_TOTAL);
 
-    return NextResponse.json({
-      live: true,
-      channels,
-      videos: videos.length ? videos : base.videos,
-      reviews,
-      reviewsCount: reviews.length,
-    });
+   const response = NextResponse.json({
+  live: true,
+  channels,
+  videos: videos.length ? videos : base.videos,
+  reviews,
+  reviewsCount: reviews.length,
+});
+
+response.headers.set('Cache-Control', 'public, max-age=3600');
+return response;
   } catch {
     const fallbackReviews = shuffle(base.reviews.filter(isValidReview))
       .slice(0, YT.MAX_REVIEWS_TOTAL);
