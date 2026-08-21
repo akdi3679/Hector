@@ -50,7 +50,7 @@ if (blocked) return blocked;
     headers.set('Content-Type', 'application/pdf');
     headers.set('Content-Disposition', `attachment; filename="${downloadName}"`);
     headers.set('Content-Length', buffer.byteLength.toString());
-    headers.set('Cache-Control', 'public, max-age=3600');
+    headers.set('Cache-Control', 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400');
     headers.set('X-Content-Type-Options', 'nosniff');
 
     return new NextResponse(buffer, { status: 200, headers });
