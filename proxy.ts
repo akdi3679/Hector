@@ -10,7 +10,6 @@ import { isAllowedOrigin, isValidClientKey, CLIENT_API_HEADER } from '@/lib/secu
 
 // ⭐ Endpoints sensibles (rate limit strict)
 const SENSITIVE_PATHS = ['/api/media-kit', '/api/youtube', '/api/health'];
-
 function getClientIp(request: NextRequest): string {
   return (
     request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
@@ -69,7 +68,22 @@ export async function proxy(request: NextRequest) {
   const ip = getClientIp(request);
   const path = request.nextUrl.pathname;
   const isApi = path.startsWith('/api/');
+// middleware.ts — Remplace les 2 blocs par CE SEUL BLOC
+// (à placer juste après const path = request.nextUrl.pathname;)
 
+// ⭐ Gestion spéciale de la page rate-limited
+if (path === '/rate-limited') {
+  // Rate limit strict sur la page elle-même (5 req/min)
+  const { allowed } = await checkRateLimitRedis('sensitive', ip);
+  if (!allowed) {
+    return new NextResponse('Too many requests', { status: 429 });
+  }
+  
+  // Laisse passer + ajoute Cache-Control
+  const response = NextResponse.next();
+  response.headers.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
+  return addSecurityHeaders(response);
+}
   // ⭐ 1. Vérification de sécurité pour les APIs (UNE SEULE FOIS)
   if (isApi) {
     const origin = request.headers.get('origin');
@@ -104,14 +118,18 @@ const { allowed, remaining, resetMs } = await checkRateLimitRedis(endpoint, ip);
         }
       );
     }
-  } else {
+} else {
   // Rate limit global pour le site (pages HTML)
-  const { allowed } = await checkRateLimitRedis('global', ip);
+  const { allowed, resetMs } = await checkRateLimitRedis('global', ip);
   if (!allowed) {
-    return NextResponse.json(
-      { error: 'Too many requests' },
-      { status: 429 }
-    );
+    const retrySeconds = Math.ceil(resetMs / 1000);
+    const redirectUrl = new URL(`/rate-limited?retry=${retrySeconds}`, request.url);
+    const response = NextResponse.redirect(redirectUrl, 302);
+    
+    // ⭐ Cache la redirection 5 minutes côté navigateur
+    response.headers.set('Cache-Control', 'public, max-age=300');
+    
+    return response;
   }
 }
 
