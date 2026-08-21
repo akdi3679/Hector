@@ -105,10 +105,9 @@ const r = await fetchWithRetry(`https://api.cloudinary.com/v1_1/${CLOUD}/resourc
       images[imageName] = res.secure_url;
     }
 
+    return NextResponse.json({ images });
 
-    const response = NextResponse.json({ images });
-response.headers.set('Cache-Control', 'public, max-age=3600');
-return response;
+    
   } catch (err) {
     console.error('[media] Search error:', err);
     return NextResponse.json({ images: {} });
